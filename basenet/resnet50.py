@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.utils.model_zoo as model_zoo
 from torchvision import models
-from torchvision.models.resnet import model_urls
+# from torchvision.models.resnet import model_urls
 
 
 def init_weights(modules):
@@ -83,7 +83,7 @@ class Bottleneck(nn.Module):
 class resnet50(torch.nn.Module):
     def __init__(self, pretrained=False, freeze=False, se_module=False):
         super(resnet50, self).__init__()
-        model_urls["resnet50"] = model_urls["resnet50"].replace("https://", "http://")
+        # model_urls["resnet50"] = model_urls["resnet50"].replace("https://", "http://")
         if se_module:
             resnet_pretrained_features = pretrainedmodels.se_resnet50(num_classes=1000, pretrained="imagenet")
         else:
