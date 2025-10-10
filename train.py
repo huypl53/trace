@@ -73,6 +73,7 @@ parser.add_argument("--data_path", default="/data/db/table/", help="Location of 
 parser.add_argument("--train_sets", default="SubTableBank", help="Datasets for training")
 parser.add_argument("--mixratio", default=[1], help="Mixture ratio of datasaets")
 parser.add_argument("--eval_set", default=None, type=str, help="Evaluation dataset")
+parser.add_argument("--freeze", action="store_true", default=False, help="Freeze basenet")
 parser.add_argument("--comment", default="write_comment_here", type=str, help="Tensorboard log comment")
 args = parser.parse_args()
 
@@ -115,6 +116,10 @@ def train():
         print("Resuming training, loading {}...".format(args.resume))
         resumeStateDict(net, torch.load(args.resume))
 
+    if args.freeze:
+        for name, param in net.named_parameters():
+            if 'basenet' in name:
+                param.requires_grad = False
     # Set optimizer
     if args.optimizer == "adamw":
         optimizer = optim.AdamW(filter(lambda p: p.requires_grad, net.parameters()), lr=args.lr)
