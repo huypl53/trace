@@ -8,3 +8,6 @@ shapely==2.0.1
 pdf2image==1.16.3
 XlsxWriter==3.0.9
 pretrainedmodels==0.7.4
+PyPDF2==3.0.1
+six==1.16.0
+# torch==2.4.1+cu121
