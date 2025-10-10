@@ -305,7 +305,7 @@ class TRACEAugmentation(object):
                 ToAbsoluteCoords(),
                 PhotometricDistort(),
                 RandomPerspective(),
-                RandomResizeCrop(list(range(1024, self.size + 1, 32))),
+                RandomResizeCrop(list(range(max(self.size - 32 * 20, 640), self.size + 1, 32))),
                 ToPercentCoords(),
                 Resize(self.size),
             ]
