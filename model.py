@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import torch.nn.init as init
 
 from basenet.resnet50 import resnet50, resnet50d
+from basenet.vit import vit_small
 
 
 def init_weights(modules):
@@ -50,11 +51,11 @@ class TraceModel(nn.Module):
         super(TraceModel, self).__init__()
 
         """ Base network """
-        if dilated:
-            self.basenet = resnet50d(pretrained, freeze, se_module)
-        else:
-            self.basenet = resnet50(pretrained, freeze, se_module)
-
+        # if dilated:
+        #     self.basenet = resnet50d(pretrained, freeze, se_module)
+        # else:
+        #     self.basenet = resnet50(pretrained, freeze, se_module)
+        self.basenet = vit_small(pretrained, freeze, 768, 32)
         """ U network """
         self.upconv1 = double_conv(2048, 1024, 512)
         self.upconv2 = double_conv(512, 512, 256)
