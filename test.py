@@ -273,6 +273,6 @@ if __name__ == "__main__":
                 print(line)
             if "f1:" in line:
                 f1 = line.split("f1:")[1]
-        print('"hmean": ', f1)
+                print('"hmean": ', f1)
     else:
         print("elapsed time : {}s".format(time.time() - t))
