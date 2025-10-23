@@ -66,6 +66,8 @@ def test_net(net, image, args):
     # resize
     s = args.canvas_size
     mag_ratio = args.mag_ratio
+    # TODO: this is temporary fix for ViT model, need to be fixed later
+    image = cv2.resize(image, (s, s))
     img_resized, target_ratio, size_heatmap = imgproc.resize_aspect_ratio(image, s, mag_ratio=mag_ratio)
 
     # preprocessing
