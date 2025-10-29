@@ -51,11 +51,11 @@ class TraceModel(nn.Module):
         super(TraceModel, self).__init__()
 
         """ Base network """
-        # if dilated:
-        #     self.basenet = resnet50d(pretrained, freeze, se_module)
-        # else:
-        #     self.basenet = resnet50(pretrained, freeze, se_module)
-        self.basenet = vit_small(pretrained=True, freeze=True, img_size=1280, patch_size=16)
+        if dilated:
+            self.basenet = resnet50d(pretrained, freeze, se_module)
+        else:
+            self.basenet = resnet50(pretrained, freeze, se_module)
+        # self.basenet = vit_small(pretrained=True, freeze=True, img_size=1280, patch_size=16)
         """ U network """
         self.upconv1 = double_conv(2048, 1024, 512)
         self.upconv2 = double_conv(512, 512, 256)

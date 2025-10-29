@@ -147,7 +147,7 @@ def GTTransform(target, width, height):
             )
 
     # clipping in heatmap
-    heatmap_gt[np.where(heatmap_gt < effective_conf)] = 0
+    heatmap_gt[heatmap_gt < effective_conf] = 0
 
     # finalize gt
     heatmap_gt = np.concatenate(
