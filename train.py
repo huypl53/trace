@@ -20,7 +20,7 @@ from torch.autograd import Variable
 import file_utils
 import imgproc
 from augmentations import TRACEAugmentation
-from loader import TRACE_Dataset
+from loader_json import TRACE_Dataset_JSON as TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
 from parse_config import parse_config_train

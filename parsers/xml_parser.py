@@ -19,7 +19,12 @@ class ParserTRACE:
     def __init__(self, root_path, dataset, phase):
         self.gt = []
         base_folder = os.path.join(root_path, dataset)
-        base_folder = os.path.join(base_folder, phase)
+        phase_folder = os.path.join(base_folder, phase)
+        
+        # If phase folder doesn't exist, use dataset folder directly (flat structure)
+        if os.path.exists(phase_folder):
+            base_folder = phase_folder
+        
         image_files, _, _ = file_utils.list_files(base_folder)
 
         for img_file in image_files:
