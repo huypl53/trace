@@ -17,7 +17,9 @@ gaussian_line = np.zeros((201, 201), dtype=np.float32)
 sigma = math.pow(40.0, 2)
 for i in range(201):
     for j in range(201):
-        gaussian_map[i, j] = math.exp(-(math.pow(i - 100, 2) / 2 / sigma + math.pow(j - 100, 2) / 2 / sigma))
+        gaussian_map[i, j] = math.exp(
+            -(math.pow(i - 100, 2) / 2 / sigma + math.pow(j - 100, 2) / 2 / sigma)
+        )
         gaussian_line[i, j] = math.exp(-(math.pow(i - 100, 2) / 2 / sigma))
 gaussian_map /= np.max(gaussian_map)
 gaussian_line /= np.max(gaussian_line)
@@ -32,13 +34,15 @@ def get_heatmap_patch(quad, im_size, kernel, poly=gaussian_poly):
     if any(bbox[0] >= bbox[1]):
         return False, None, None
     patch_size = tuple(bbox[1] - bbox[0])
-    tl = np.minimum(np.maximum(np.floor(quad.min(axis=0)), 0), im_size).astype(np.float32)
+    tl = np.minimum(np.maximum(np.floor(quad.min(axis=0)), 0), im_size).astype(
+        np.float32
+    )
     M = cv2.getPerspectiveTransform(poly, quad - tl)
     img_text = cv2.warpPerspective(kernel, M, patch_size)
     return True, img_text, bbox
 
 
-def GTTransform(target, width, height):
+def GTTransform(target, width, height, hide_invisible=True):
     effective_conf = 0.05
     height = int(height)
     width = int(width)
@@ -89,13 +93,14 @@ def GTTransform(target, width, height):
                 thickness=thickness,
             )
         else:
-            cv2.line(
-                heatmap_gt_ihor,
-                tuple(obj_poly[0].astype(np.int32)),
-                tuple(obj_poly[1].astype(np.int32)),
-                color=1,
-                thickness=thickness,
-            )
+            if not hide_invisible:
+                cv2.line(
+                    heatmap_gt_ihor,
+                    tuple(obj_poly[0].astype(np.int32)),
+                    tuple(obj_poly[1].astype(np.int32)),
+                    color=1,
+                    thickness=thickness,
+                )
         if lines[1]:  # BOTTOM
             cv2.line(
                 heatmap_gt_hor,
@@ -105,13 +110,14 @@ def GTTransform(target, width, height):
                 thickness=thickness,
             )
         else:
-            cv2.line(
-                heatmap_gt_ihor,
-                tuple(obj_poly[2].astype(np.int32)),
-                tuple(obj_poly[3].astype(np.int32)),
-                color=1,
-                thickness=thickness,
-            )
+            if not hide_invisible:
+                cv2.line(
+                    heatmap_gt_ihor,
+                    tuple(obj_poly[2].astype(np.int32)),
+                    tuple(obj_poly[3].astype(np.int32)),
+                    color=1,
+                    thickness=thickness,
+                )
         # vertical line
         if lines[3]:  # RIGHT
             cv2.line(
@@ -122,13 +128,14 @@ def GTTransform(target, width, height):
                 thickness=thickness,
             )
         else:
-            cv2.line(
-                heatmap_gt_iver,
-                tuple(obj_poly[1].astype(np.int32)),
-                tuple(obj_poly[2].astype(np.int32)),
-                color=1,
-                thickness=thickness,
-            )
+            if not hide_invisible:
+                cv2.line(
+                    heatmap_gt_iver,
+                    tuple(obj_poly[1].astype(np.int32)),
+                    tuple(obj_poly[2].astype(np.int32)),
+                    color=1,
+                    thickness=thickness,
+                )
         if lines[2]:  # LEFT
             cv2.line(
                 heatmap_gt_ver,
@@ -138,13 +145,14 @@ def GTTransform(target, width, height):
                 thickness=thickness,
             )
         else:
-            cv2.line(
-                heatmap_gt_iver,
-                tuple(obj_poly[3].astype(np.int32)),
-                tuple(obj_poly[0].astype(np.int32)),
-                color=1,
-                thickness=thickness,
-            )
+            if not hide_invisible:
+                cv2.line(
+                    heatmap_gt_iver,
+                    tuple(obj_poly[3].astype(np.int32)),
+                    tuple(obj_poly[0].astype(np.int32)),
+                    color=1,
+                    thickness=thickness,
+                )
 
     # clipping in heatmap
     heatmap_gt[np.where(heatmap_gt < effective_conf)] = 0
@@ -206,7 +214,9 @@ class TRACE_Dataset(data.Dataset):
         for dataset in datasets.split(","):
             parser = ParserTRACE(rootpath, dataset, phase)
             self.dataset_size += parser.lenFiles()
-            self.parsers.append({"name": dataset, "num": parser.lenFiles(), "parser": parser})
+            self.parsers.append(
+                {"name": dataset, "num": parser.lenFiles(), "parser": parser}
+            )
         print("Dataset size of Training Sets : {:d}".format(self.dataset_size))
 
         cv2.setNumThreads(0)  # prevent deadlock caused by conflict with pytorch
@@ -235,7 +245,9 @@ class TRACE_Dataset(data.Dataset):
                 if isinstance(img_file, str):
                     img = imgproc.loadImage(img_file)
                 else:
-                    img = img_file  # Some parser return image rather than image file name
+                    img = (
+                        img_file  # Some parser return image rather than image file name
+                    )
                 height, width, channels = img.shape
             except Exception as e:
                 print(e)

@@ -58,6 +58,8 @@ class ParserTRACEJSON:
         # Convert string keys to integers and sort
         col_indices = sorted([int(k) for k in column_widths.keys()])
         row_indices = sorted([int(k) for k in row_heights.keys()])
+        col_idx_to_pos = {idx: i for i, idx in enumerate(col_indices)}
+        row_idx_to_pos = {idx: i for i, idx in enumerate(row_indices)}
         
         # Calculate cumulative positions
         col_positions = [0]
@@ -68,6 +70,9 @@ class ParserTRACEJSON:
         for row_idx in row_indices:
             row_positions.append(row_positions[-1] + row_heights[str(row_idx)])
         
+        merged_cells = props.get("mergedCells", {}) or {}
+        hidden_cells = {key for key, val in (props.get("hiddenCells", {}) or {}).items() if val}
+
         # Process each cell
         for cell_key, cell_info in cell_data.items():
             # Parse row-col from key like "0-0"
@@ -76,19 +81,31 @@ class ParserTRACEJSON:
             except ValueError:
                 continue
             
+            # Skip hidden cells
+            if cell_key in hidden_cells:
+                continue
+
             # Skip if indices are out of range
-            try:
-                col_pos_idx = col_indices.index(col_idx)
-                row_pos_idx = row_indices.index(row_idx)
-            except ValueError:
+            if col_idx not in col_idx_to_pos or row_idx not in row_idx_to_pos:
                 # Column or row index not found in widths/heights
                 continue
+            col_pos_idx = col_idx_to_pos[col_idx]
+            row_pos_idx = row_idx_to_pos[row_idx]
+
+            # Determine span (default 1x1, overridden by mergedCells entry)
+            merged_info = merged_cells.get(cell_key, {})
+            colspan = int(merged_info.get("colspan") or 1)
+            rowspan = int(merged_info.get("rowspan") or 1)
+            colspan = max(1, colspan)
+            rowspan = max(1, rowspan)
             
             # Calculate cell position relative to table
             x1 = col_positions[col_pos_idx]
             y1 = row_positions[row_pos_idx]
-            x2 = col_positions[col_pos_idx + 1]
-            y2 = row_positions[row_pos_idx + 1]
+            end_col_pos = min(len(col_positions) - 1, col_pos_idx + colspan)
+            end_row_pos = min(len(row_positions) - 1, row_pos_idx + rowspan)
+            x2 = col_positions[end_col_pos]
+            y2 = row_positions[end_row_pos]
             
             # Convert to absolute coordinates (relative to image)
             abs_x1 = table_x + x1
