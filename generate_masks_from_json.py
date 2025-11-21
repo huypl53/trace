@@ -135,6 +135,7 @@ def generate_masks(
                 # Extract quads and lines
                 quads = gt_entry["quads"]
                 lines = gt_entry["lines"]
+                table_bounds = gt_entry.get("table_bounds") or []
 
                 if not quads:
                     print(f"Warning: No cells found for {img_file}")
@@ -145,13 +146,24 @@ def generate_masks(
 
                 # Optionally crop around the table region with random padding
                 if crop_tables:
-                    # Compute tight bounding box over all cell quads
-                    xs = quads_arr[:, 0::2]
-                    ys = quads_arr[:, 1::2]
-                    min_x = max(0, int(np.floor(xs.min())))
-                    min_y = max(0, int(np.floor(ys.min())))
-                    max_x = min(width, int(np.ceil(xs.max())))
-                    max_y = min(height, int(np.ceil(ys.max())))
+                    if table_bounds:
+                        min_x = min(int(np.floor(tb["x1"])) for tb in table_bounds)
+                        min_y = min(int(np.floor(tb["y1"])) for tb in table_bounds)
+                        max_x = max(int(np.ceil(tb["x2"])) for tb in table_bounds)
+                        max_y = max(int(np.ceil(tb["y2"])) for tb in table_bounds)
+                    else:
+                        # Fallback to using visible quads if bounds unavailable
+                        xs = quads_arr[:, 0::2]
+                        ys = quads_arr[:, 1::2]
+                        min_x = int(np.floor(xs.min()))
+                        min_y = int(np.floor(ys.min()))
+                        max_x = int(np.ceil(xs.max()))
+                        max_y = int(np.ceil(ys.max()))
+
+                    min_x = max(0, min_x)
+                    min_y = max(0, min_y)
+                    max_x = min(width, max_x)
+                    max_y = min(height, max_y)
 
                     if pad_max < pad_min:
                         pad_max_local = pad_min

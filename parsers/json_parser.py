@@ -26,6 +26,7 @@ class ParserTRACEJSON:
             if os.path.exists(gt_file):
                 quads = []
                 lines = []
+                table_bounds = []
                 
                 with open(gt_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -34,12 +35,21 @@ class ParserTRACEJSON:
                 if "items" in data:
                     for item in data["items"]:
                         if item.get("type") == "table":
-                            table_quads, table_lines = self._parse_table(item)
+                            table_quads, table_lines, bounds = self._parse_table(item)
                             quads.extend(table_quads)
                             lines.extend(table_lines)
+                            if bounds is not None:
+                                table_bounds.append(bounds)
 
                 if quads:  # Only add if we found at least one cell
-                    self.gt.append({"file_name": img_file, "quads": quads, "lines": lines})
+                    self.gt.append(
+                        {
+                            "file_name": img_file,
+                            "quads": quads,
+                            "lines": lines,
+                            "table_bounds": table_bounds,
+                        }
+                    )
 
     def _parse_table(self, table_item):
         """Parse a single table item and extract cell quads and border visibility."""
@@ -72,6 +82,17 @@ class ParserTRACEJSON:
         
         merged_cells = props.get("mergedCells", {}) or {}
         hidden_cells = {key for key, val in (props.get("hiddenCells", {}) or {}).items() if val}
+
+        table_bounds = None
+        if col_positions and row_positions:
+            table_width = col_positions[-1]
+            table_height = row_positions[-1]
+            table_bounds = {
+                "x1": table_x,
+                "y1": table_y,
+                "x2": table_x + table_width,
+                "y2": table_y + table_height,
+            }
 
         # Process each cell
         for cell_key, cell_info in cell_data.items():
@@ -128,7 +149,7 @@ class ParserTRACEJSON:
             line = [border_top, border_bottom, border_left, border_right]
             lines.append(line)
         
-        return quads, lines
+        return quads, lines, table_bounds
 
     def getDatasetSize(self):
         return len(self.gt)
