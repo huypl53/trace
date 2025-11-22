@@ -20,7 +20,7 @@ from torch.autograd import Variable
 import file_utils
 import imgproc
 from augmentations import TRACEAugmentation
-from loader_json import TRACE_Dataset_JSON as TRACE_Dataset
+from loader_json import TRACE_Dataset_npy as TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
 from parse_config import parse_config_train
@@ -43,7 +43,10 @@ def resumeStateDict(net, state_dict):
     state_dict = copyStateDict(state_dict)
     new_state_dict = net.state_dict()
     for k in list(state_dict.keys()):
-        if not k in new_state_dict.keys() or new_state_dict[k].shape != state_dict[k].shape:
+        if (
+            not k in new_state_dict.keys()
+            or new_state_dict[k].shape != state_dict[k].shape
+        ):
             del state_dict[k]
             print("Warning!!! : different shape of tensors for {}".format(k))
     new_state_dict.update(state_dict)
@@ -56,25 +59,64 @@ def str2bool(v):
 
 parser = argparse.ArgumentParser(description="TRACE Trainer")
 parser.add_argument("-c", "--config_file", type=str, required=False)
-parser.add_argument("--train_size", default=768, type=int, help="Image size for training")
-parser.add_argument("--batch_size", default=32, type=int, help="Batch size for training")
+parser.add_argument(
+    "--train_size", default=768, type=int, help="Image size for training"
+)
+parser.add_argument(
+    "--batch_size", default=32, type=int, help="Batch size for training"
+)
 parser.add_argument("--resume", default=None, type=str, help="Resume from checkpoint")
-parser.add_argument("--num_workers", default=12, type=int, help="Number of workers used in dataloading")
-parser.add_argument("--max_iter", default=100000, type=int, help="Number of training iterations")
-parser.add_argument("--start_iter", default=0, type=int, help="Begin counting iterations starting from this value")
-parser.add_argument("--cuda", default=True, type=str2bool, help="Use cuda to train model")
-parser.add_argument("--optimizer", default="adamw", type=str, help="Optimizer (adamw/adam/sgd)")
-parser.add_argument("--lr", "--learning-rate", default=3e-4, type=float, help="initial learning rate")
+parser.add_argument(
+    "--num_workers", default=12, type=int, help="Number of workers used in dataloading"
+)
+parser.add_argument(
+    "--max_iter", default=100000, type=int, help="Number of training iterations"
+)
+parser.add_argument(
+    "--start_iter",
+    default=0,
+    type=int,
+    help="Begin counting iterations starting from this value",
+)
+parser.add_argument(
+    "--cuda", default=True, type=str2bool, help="Use cuda to train model"
+)
+parser.add_argument(
+    "--optimizer", default="adamw", type=str, help="Optimizer (adamw/adam/sgd)"
+)
+parser.add_argument(
+    "--lr", "--learning-rate", default=3e-4, type=float, help="initial learning rate"
+)
 parser.add_argument("--gamma", default=0.8, type=float, help="Gamma update for LR")
-parser.add_argument("--eval", action="store_true", default=False,help="Enable evaluation during training")
-parser.add_argument("--save_folder", default="eval/", help="Location to save checkpoint models")
-parser.add_argument("--save_interval", default=1000, type=int, help="Checkpoint save and evaluation interval")
-parser.add_argument("--data_path", default="/data/db/table/", help="Location of table datasets")
-parser.add_argument("--train_sets", default="SubTableBank", help="Datasets for training")
+parser.add_argument(
+    "--eval",
+    action="store_true",
+    default=False,
+    help="Enable evaluation during training",
+)
+parser.add_argument(
+    "--save_folder", default="eval/", help="Location to save checkpoint models"
+)
+parser.add_argument(
+    "--save_interval",
+    default=1000,
+    type=int,
+    help="Checkpoint save and evaluation interval",
+)
+parser.add_argument(
+    "--data_path", default="/data/db/table/", help="Location of table datasets"
+)
+parser.add_argument(
+    "--train_sets", default="SubTableBank", help="Datasets for training"
+)
 parser.add_argument("--mixratio", default=[1], help="Mixture ratio of datasaets")
 parser.add_argument("--eval_set", default=None, type=str, help="Evaluation dataset")
-parser.add_argument("--freeze", action="store_true", default=False, help="Freeze basenet")
-parser.add_argument("--comment", default="write_comment_here", type=str, help="Tensorboard log comment")
+parser.add_argument(
+    "--freeze", action="store_true", default=False, help="Freeze basenet"
+)
+parser.add_argument(
+    "--comment", default="write_comment_here", type=str, help="Tensorboard log comment"
+)
 args = parser.parse_args()
 
 # parse config file
@@ -109,7 +151,11 @@ def train():
     # build network
     net = TraceModel()
 
-    print("the number of model parameters: {}".format(sum([p.data.nelement() for p in net.parameters()])))
+    print(
+        "the number of model parameters: {}".format(
+            sum([p.data.nelement() for p in net.parameters()])
+        )
+    )
 
     if args.resume:
         args.resume = os.path.join(current_folder, args.resume)
@@ -118,13 +164,17 @@ def train():
 
     if args.freeze:
         for name, param in net.named_parameters():
-            if 'basenet' in name:
+            if "basenet" in name:
                 param.requires_grad = False
     # Set optimizer
     if args.optimizer == "adamw":
-        optimizer = optim.AdamW(filter(lambda p: p.requires_grad, net.parameters()), lr=args.lr)
+        optimizer = optim.AdamW(
+            filter(lambda p: p.requires_grad, net.parameters()), lr=args.lr
+        )
     elif args.optimizer == "adam":
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, net.parameters()), lr=args.lr)
+        optimizer = optim.Adam(
+            filter(lambda p: p.requires_grad, net.parameters()), lr=args.lr
+        )
     else:
         print("Unknown optimizer...")
         sys.exit(1)
@@ -156,7 +206,9 @@ def train():
 
     # init summary
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    writer = SummaryWriter(logdir=os.path.join(current_folder, "runs", current_time + "_" + args.comment))
+    writer = SummaryWriter(
+        logdir=os.path.join(current_folder, "runs", current_time + "_" + args.comment)
+    )
 
     # multi-process eval
     num_gpus = torch.cuda.device_count()
@@ -230,24 +282,32 @@ def train():
         pred_img = out[0, :, :, :].cpu().data.numpy()
         if iteration % display_iter == 0:
             t1 = time.time()
-            print("iter " + repr(iteration) + " || loss: %.4f (Time : %.1f)" % (loss.sum().item(), (t1 - t0)))
+            print(
+                "iter "
+                + repr(iteration)
+                + " || loss: %.4f (Time : %.1f)" % (loss.sum().item(), (t1 - t0))
+            )
             t0 = time.time()
 
-            render_img = cv2.resize(orig_images.numpy().transpose((1, 2, 0)), (out_dim, out_dim))
+            render_img = cv2.resize(
+                orig_images.numpy().transpose((1, 2, 0)), (out_dim, out_dim)
+            )
             render_img = imgproc.denormalizeMeanVariance(render_img)
             in_img = np.clip(render_img.transpose(2, 0, 1), 0, 255).astype(np.uint8)
 
             render_img = np.zeros((3, out_dim, out_dim * 8), dtype=np.uint8)
             render_img[:, :, :out_dim] = in_img
-            render_gt_weight = np.clip(orig_weights[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255).astype(
-                np.uint8
-            )
+            render_gt_weight = np.clip(
+                orig_weights[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+            ).astype(np.uint8)
 
             # Corner map
             render_img[0, :, out_dim : 2 * out_dim] = np.clip(
                 orig_gts[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
             ).astype(np.uint8)
-            render_img[0, :, 2 * out_dim : 3 * out_dim] = np.clip((pred_img[:, :, 0]) * 255, 0, 255).astype(np.uint8)
+            render_img[0, :, 2 * out_dim : 3 * out_dim] = np.clip(
+                (pred_img[:, :, 0]) * 255, 0, 255
+            ).astype(np.uint8)
 
             # Link map
             render_img[0, :, 3 * out_dim : 4 * out_dim] = np.clip(
@@ -256,16 +316,24 @@ def train():
             render_img[1, :, 3 * out_dim : 4 * out_dim] = np.clip(
                 orig_gts[:, :, 2].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
             ).astype(np.uint8)
-            render_img[0, :, 4 * out_dim : 5 * out_dim] = np.clip(pred_img[:, :, 1] * 255, 0, 255).astype(np.uint8)
-            render_img[1, :, 4 * out_dim : 5 * out_dim] = np.clip(pred_img[:, :, 2] * 255, 0, 255).astype(np.uint8)
+            render_img[0, :, 4 * out_dim : 5 * out_dim] = np.clip(
+                pred_img[:, :, 1] * 255, 0, 255
+            ).astype(np.uint8)
+            render_img[1, :, 4 * out_dim : 5 * out_dim] = np.clip(
+                pred_img[:, :, 2] * 255, 0, 255
+            ).astype(np.uint8)
             render_img[0, :, 5 * out_dim : 6 * out_dim] = np.clip(
                 orig_gts[:, :, 3].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
             ).astype(np.uint8)
             render_img[1, :, 5 * out_dim : 6 * out_dim] = np.clip(
                 orig_gts[:, :, 4].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
             ).astype(np.uint8)
-            render_img[0, :, 6 * out_dim : 7 * out_dim] = np.clip(pred_img[:, :, 3] * 255, 0, 255).astype(np.uint8)
-            render_img[1, :, 6 * out_dim : 7 * out_dim] = np.clip(pred_img[:, :, 4] * 255, 0, 255).astype(np.uint8)
+            render_img[0, :, 6 * out_dim : 7 * out_dim] = np.clip(
+                pred_img[:, :, 3] * 255, 0, 255
+            ).astype(np.uint8)
+            render_img[1, :, 6 * out_dim : 7 * out_dim] = np.clip(
+                pred_img[:, :, 4] * 255, 0, 255
+            ).astype(np.uint8)
             render_img[:, :, -out_dim - 1 : -1] = render_gt_weight
 
             writer.add_scalar("loss", loss.sum().item(), iteration)
@@ -275,7 +343,9 @@ def train():
 
         if iteration % args.save_interval == 0:
             print("Saving state, iter : ", iteration)
-            model_file = os.path.join(args.save_folder, "ckpt_" + repr(iteration) + ".pth")
+            model_file = os.path.join(
+                args.save_folder, "ckpt_" + repr(iteration) + ".pth"
+            )
 
             torch.save(net.state_dict(), model_file)
             os.chmod(model_file, 0o777)
@@ -288,7 +358,11 @@ def train():
                     if bModelSaved:
                         lastEvalIter = iteration
                         lastEvalModel = model_file
-                        print("Evaluation started at iteration {} on {}...".format(lastEvalIter, args.eval_set))
+                        print(
+                            "Evaluation started at iteration {} on {}...".format(
+                                lastEvalIter, args.eval_set
+                            )
+                        )
                         eval_cmd = (
                             "CUDA_VISIBLE_DEVICES="
                             + str(available_gpus[-1])
@@ -300,17 +374,29 @@ def train():
                             + " -c="
                             + args.config_file
                         )
-                        eval_cmd += " -i " + os.path.join(args.data_path, args.eval_set, "test")
+                        eval_cmd += " -i " + os.path.join(
+                            args.data_path, args.eval_set, "test"
+                        )
                         pEval = Popen(eval_cmd, shell=True, stdout=PIPE, stderr=PIPE)
                 elif pEval.poll() is not None:
                     (scorestring, stderrdata) = pEval.communicate()
-                    print("end of evaluation with {}, {}".format(scorestring, stderrdata))
+                    print(
+                        "end of evaluation with {}, {}".format(scorestring, stderrdata)
+                    )
 
                     hmean = float(
-                        str(scorestring).strip().split('"hmean":')[1].split(",")[0].split("}")[0].split("\\")[0].strip()
+                        str(scorestring)
+                        .strip()
+                        .split('"hmean":')[1]
+                        .split(",")[0]
+                        .split("}")[0]
+                        .split("\\")[0]
+                        .strip()
                     )
                     writer.add_scalar("test_hmean", hmean, lastEvalIter)
-                    print("test_hmean for {}-th iter : {:.4f}".format(lastEvalIter, hmean))
+                    print(
+                        "test_hmean for {}-th iter : {:.4f}".format(lastEvalIter, hmean)
+                    )
 
                     # Save best score model
                     if hmean > best_score:

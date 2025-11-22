@@ -12,7 +12,7 @@ import imgproc
 from parsers.json_parser import ParserTRACEJSON
 
 
-class TRACE_Dataset_JSON(data.Dataset):
+class TRACE_Dataset_npy(data.Dataset):
     """OCR Dataset Object for TextAffinityField using JSON labels and pre-generated masks
 
     input is image, target is pre-generated mask annotation
@@ -48,7 +48,9 @@ class TRACE_Dataset_JSON(data.Dataset):
         for dataset in datasets.split(","):
             parser = ParserTRACEJSON(rootpath, dataset, phase)
             self.dataset_size += parser.lenFiles()
-            self.parsers.append({"name": dataset, "num": parser.lenFiles(), "parser": parser})
+            self.parsers.append(
+                {"name": dataset, "num": parser.lenFiles(), "parser": parser}
+            )
         print("Dataset size of Training Sets : {:d}".format(self.dataset_size))
 
         cv2.setNumThreads(0)  # prevent deadlock caused by conflict with pytorch
@@ -77,21 +79,23 @@ class TRACE_Dataset_JSON(data.Dataset):
                 if isinstance(img_file, str):
                     img = imgproc.loadImage(img_file)
                 else:
-                    img = img_file  # Some parser return image rather than image file name
+                    img = (
+                        img_file  # Some parser return image rather than image file name
+                    )
                 height, width, channels = img.shape
-                
+
                 # Load pre-generated mask
                 basename, ext = os.path.splitext(os.path.basename(img_file))
                 base_folder = os.path.dirname(img_file)
                 mask_file = os.path.join(base_folder, f"{basename}.npy")
-                
+
                 if not os.path.exists(mask_file):
                     raise FileNotFoundError(f"Mask file not found: {mask_file}")
-                
+
                 mask_data = np.load(mask_file, allow_pickle=True).item()
                 gt_image = mask_data["mask"]
                 gt_weight = mask_data["weight"]
-                
+
             except Exception as e:
                 print(e)
                 continue
@@ -106,28 +110,31 @@ class TRACE_Dataset_JSON(data.Dataset):
             dummy_lines = []
             img, dummy_gt, dummy_lines, _ = self.transform(img, dummy_gt, dummy_lines)
             width = height = self.transform.size
-            
+
             # Apply same geometric transforms to mask
             # Resize mask to match transformed image size (accounting for scale_down)
             target_mask_height = int(height / self.scale_down)
             target_mask_width = int(width / self.scale_down)
-            
+
             if gt_image.shape[:2] != (target_mask_height, target_mask_width):
                 # Resize mask to target size
-                gt_image_resized = np.zeros((target_mask_height, target_mask_width, gt_image.shape[2]), dtype=gt_image.dtype)
+                gt_image_resized = np.zeros(
+                    (target_mask_height, target_mask_width, gt_image.shape[2]),
+                    dtype=gt_image.dtype,
+                )
                 for ch in range(gt_image.shape[2]):
                     gt_image_resized[:, :, ch] = cv2.resize(
                         gt_image[:, :, ch],
                         (target_mask_width, target_mask_height),
-                        interpolation=cv2.INTER_LINEAR
+                        interpolation=cv2.INTER_LINEAR,
                     )
                 gt_image = gt_image_resized
-                
+
                 # Resize weight mask
                 gt_weight = cv2.resize(
                     gt_weight,
                     (target_mask_width, target_mask_height),
-                    interpolation=cv2.INTER_LINEAR
+                    interpolation=cv2.INTER_LINEAR,
                 )
         # else: No transforms, use mask as-is (already loaded at correct size)
 
@@ -144,4 +151,3 @@ class TRACE_Dataset_JSON(data.Dataset):
             torch.from_numpy(gt_image.astype(np.float32)),
             torch.from_numpy(gt_weight.astype(np.float32)),
         )
-
