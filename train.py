@@ -139,7 +139,7 @@ def train():
         # rootpath=args.data_path,
         # phase="train",
         scale_down=scale_down,
-        visible_only=True,
+        visible_only=False,
         transform=transform,
         # mixratio=args.mixratio,
     )

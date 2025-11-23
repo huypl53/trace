@@ -279,7 +279,7 @@ class TRACE_Dataset(data.Dataset):
         )
 
 
-def LineGTTransform(lines, width, height, visible_only=False):
+def LineGTTransform(lines, width, height, visible_only=False, add_corners=True):
     """
     Create ground truth heatmaps from Line objects.
 
@@ -288,15 +288,17 @@ def LineGTTransform(lines, width, height, visible_only=False):
         width: Image width
         height: Image height
         visible_only: If True, only render visible lines
+        add_corners: If True, add Gaussian blobs at line intersections
 
     Returns:
-        heatmap_gt: (H, W, 3) array with channels [corners, horizontal, vertical]
+        heatmap_gt: (H, W, 3 or 5) array with channels [corners, horizontal, vertical(, inv_h, inv_v)]
         weight_mask: (H, W) weight mask
     """
     height = int(height)
     width = int(width)
 
     # Create heatmaps
+    heatmap_gt_corners = np.zeros((height, width), dtype=np.float32)
     heatmap_gt_hor = np.zeros((height, width), dtype=np.float32)
     heatmap_gt_ver = np.zeros((height, width), dtype=np.float32)
     heatmap_gt_ihor = np.zeros((height, width), dtype=np.float32)
@@ -304,6 +306,10 @@ def LineGTTransform(lines, width, height, visible_only=False):
     weight_mask = np.ones((height, width), dtype=np.float32)
 
     thickness = 2
+
+    # Collect line endpoints for corner detection
+    h_lines = []  # (y, x1, x2, visible)
+    v_lines = []  # (x, y1, y2, visible)
 
     for line in lines:
         # Skip invisible lines if visible_only is True
@@ -316,20 +322,44 @@ def LineGTTransform(lines, width, height, visible_only=False):
 
         # Draw line on appropriate heatmap
         if line.direction == 'horizontal':
+            h_lines.append((line.y1, line.x1, line.x2, line.visible))
             if line.visible:
                 cv2.line(heatmap_gt_hor, p1, p2, color=1, thickness=thickness)
             else:
                 cv2.line(heatmap_gt_ihor, p1, p2, color=1, thickness=thickness)
         else:  # vertical
+            v_lines.append((line.x1, line.y1, line.y2, line.visible))
             if line.visible:
                 cv2.line(heatmap_gt_ver, p1, p2, color=1, thickness=thickness)
             else:
                 cv2.line(heatmap_gt_iver, p1, p2, color=1, thickness=thickness)
 
-    # Combine heatmaps
-    # For line detection, we don't have corner heatmap, so use zeros
-    heatmap_gt_corners = np.zeros((height, width), dtype=np.float32)
+    # Add corner keypoints at line intersections (like original GTTransform)
+    if add_corners:
+        # Find intersections between horizontal and vertical lines
+        for h_y, h_x1, h_x2, h_vis in h_lines:
+            for v_x, v_y1, v_y2, v_vis in v_lines:
+                # Check if lines intersect
+                if h_x1 <= v_x <= h_x2 and v_y1 <= h_y <= v_y2:
+                    # Both lines are visible - add corner keypoint
+                    if h_vis and v_vis:
+                        # Add Gaussian blob at intersection
+                        center_x, center_y = int(v_x), int(h_y)
+                        bs = 5  # blob size (same as original)
 
+                        # Create small Gaussian region
+                        corner_poly = np.float32([
+                            [center_x - bs, center_y - bs],
+                            [center_x + bs, center_y - bs],
+                            [center_x + bs, center_y + bs],
+                            [center_x - bs, center_y + bs],
+                        ])
+
+                        M = cv2.getPerspectiveTransform(gaussian_poly, corner_poly)
+                        img_text = cv2.warpPerspective(gaussian_map, M, (width, height))
+                        heatmap_gt_corners = np.maximum(heatmap_gt_corners, img_text)
+
+    # Combine heatmaps
     heatmap_gt = np.stack([heatmap_gt_corners, heatmap_gt_hor, heatmap_gt_ver], axis=-1)
     if not visible_only:
         heatmap_gt = np.concatenate([heatmap_gt, heatmap_gt_ihor[..., np.newaxis], heatmap_gt_iver[..., np.newaxis]], axis=-1)
