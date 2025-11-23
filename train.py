@@ -366,7 +366,7 @@ def train():
                         eval_cmd = (
                             "CUDA_VISIBLE_DEVICES="
                             + str(available_gpus[-1])
-                            + " python test.py --trained_model="
+                            + " OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python test.py --trained_model="
                             + model_file
                             + " --eval"
                             + " --res_postfix="

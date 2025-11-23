@@ -7,6 +7,7 @@ from subprocess import PIPE, Popen
 from xml.dom import minidom
 
 import cv2
+cv2.setNumThreads(0)
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
