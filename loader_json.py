@@ -9,7 +9,8 @@ import torch
 import torch.utils.data as data
 
 import imgproc
-from parsers.json_parser import ParserTRACEJSON
+# from parsers.json_parser import ParserTRACEJSON
+from parsers.npy_parser import ParserTRACENPY as Parser
 
 
 class TRACE_Dataset_npy(data.Dataset):
@@ -46,7 +47,7 @@ class TRACE_Dataset_npy(data.Dataset):
         self.dataset_size = 0
 
         for dataset in datasets.split(","):
-            parser = ParserTRACEJSON(rootpath, dataset, phase)
+            parser = Parser(rootpath, dataset, phase)
             self.dataset_size += parser.lenFiles()
             self.parsers.append(
                 {"name": dataset, "num": parser.lenFiles(), "parser": parser}
