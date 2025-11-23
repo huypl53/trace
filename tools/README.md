@@ -559,6 +559,12 @@ invisible = border_width == 0
 - Lines must be perfectly horizontal or vertical
 - Check for floating-point precision issues
 
+**Augmentation errors (ValueError: empty range for randrange):**
+- This occurred with images smaller than half the target augmentation size
+- **Fixed:** The `LineRandomResizeCrop` augmentation now automatically handles small images
+- Images smaller than the minimum crop size will skip random cropping and only be resized
+- No action needed - the fix is already applied
+
 ---
 
 ## Visualization

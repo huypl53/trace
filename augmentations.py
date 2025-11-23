@@ -406,9 +406,18 @@ class LineRandomResizeCrop(object):
         h, w = image.shape[:2]
         target_size = random.choice(self.sizes)
 
-        # Random crop size (at least half the target size)
-        crop_h = random.randint(target_size // 2, min(h, target_size))
-        crop_w = random.randint(target_size // 2, min(w, target_size))
+        # Random crop size (at least half the target size, but clamped to image size)
+        min_crop_h = min(target_size // 2, h)
+        min_crop_w = min(target_size // 2, w)
+        max_crop_h = min(h, target_size)
+        max_crop_w = min(w, target_size)
+
+        # If image is too small for any meaningful crop, skip augmentation
+        if min_crop_h > max_crop_h or min_crop_w > max_crop_w:
+            return image, lines
+
+        crop_h = random.randint(min_crop_h, max_crop_h)
+        crop_w = random.randint(min_crop_w, max_crop_w)
 
         # Random crop position
         top = random.randint(0, h - crop_h)
