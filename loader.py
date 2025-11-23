@@ -359,6 +359,10 @@ def LineGTTransform(lines, width, height, visible_only=False, add_corners=True):
                         img_text = cv2.warpPerspective(gaussian_map, M, (width, height))
                         heatmap_gt_corners = np.maximum(heatmap_gt_corners, img_text)
 
+    # Apply effective_conf clipping to match original GTTransform behavior
+    effective_conf = 0.05
+    heatmap_gt_corners[np.where(heatmap_gt_corners < effective_conf)] = 0
+
     # Combine heatmaps
     heatmap_gt = np.stack([heatmap_gt_corners, heatmap_gt_hor, heatmap_gt_ver], axis=-1)
     if not visible_only:
