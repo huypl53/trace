@@ -19,8 +19,8 @@ from torch.autograd import Variable
 
 import file_utils
 import imgproc
-from augmentations import TRACEAugmentation
-from loader import TRACE_Dataset
+from augmentations import LineAugmentation as TRACEAugmentation
+from loader import LineDataset as TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
 from parse_config import parse_config_train
@@ -134,12 +134,14 @@ def train():
     transform = TRACEAugmentation(args.train_size, means)
     print("Loading Training Dataset... {}".format(str(args.train_sets)))
     dataset = TRACE_Dataset(
-        args.train_sets,
-        rootpath=args.data_path,
-        phase="train",
+        os.path.join(args.data_path,args.train_sets),
+        # args.train_sets,
+        # rootpath=args.data_path,
+        # phase="train",
         scale_down=scale_down,
+        visible_only=True,
         transform=transform,
-        mixratio=args.mixratio,
+        # mixratio=args.mixratio,
     )
     if args.eval:
         print("Evaluation Dataset... {}".format(str(args.eval_set)))

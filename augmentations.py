@@ -313,3 +313,164 @@ class TRACEAugmentation(object):
 
     def __call__(self, img, boxes, labels, angles=None):
         return self.augment(img, boxes, labels, angles)
+
+
+class LineCompose(object):
+    """Composes several augmentations together for Line data.
+
+    Args:
+        transforms (List[Transform]): list of transforms to compose.
+    """
+
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, img, lines):
+        for t in self.transforms:
+            img, lines = t(img, lines)
+        return img, lines
+
+
+class LineConvertFromInts(object):
+    """Convert image from int to float32."""
+
+    def __call__(self, image, lines):
+        return image.astype(np.float32), lines
+
+
+class LinePhotometricDistort(object):
+    """Apply photometric distortions to the image (doesn't affect lines)."""
+
+    def __init__(self):
+        self.pd = PhotometricDistort()
+
+    def __call__(self, image, lines):
+        # PhotometricDistort expects boxes, labels, angles
+        # We pass None for those and just get the image back
+        image, _, _, _ = self.pd(image, None, None, None)
+        return image, lines
+
+
+class LineResize(object):
+    """Resize image and scale line coordinates."""
+
+    def __init__(self, size=512):
+        self.size = size
+        self.resize_option = (
+            cv2.INTER_LINEAR,
+            cv2.INTER_NEAREST,
+            cv2.INTER_AREA,
+            cv2.INTER_CUBIC,
+            cv2.INTER_LANCZOS4,
+        )
+
+    def __call__(self, image, lines):
+        from tools.types import Line
+
+        h, w = image.shape[:2]
+        inter_mode = random.choice(self.resize_option)
+        image = cv2.resize(image.astype(np.uint8), (self.size, self.size), interpolation=inter_mode)
+
+        # Scale lines
+        scale_x = self.size / w
+        scale_y = self.size / h
+
+        scaled_lines = []
+        for line in lines:
+            scaled_line = Line(
+                x1=line.x1 * scale_x,
+                y1=line.y1 * scale_y,
+                x2=line.x2 * scale_x,
+                y2=line.y2 * scale_y,
+                direction=line.direction,
+                visible=line.visible
+            )
+            scaled_lines.append(scaled_line)
+
+        return image, scaled_lines
+
+
+class LineRandomResizeCrop(object):
+    """Randomly crop and resize image, updating line coordinates."""
+
+    def __init__(self, sizes, p=0.5):
+        self.sizes = sizes
+        self.p = p
+
+    def __call__(self, image, lines):
+        from tools.types import Line
+
+        if random.random() > self.p:
+            return image, lines
+
+        h, w = image.shape[:2]
+        target_size = random.choice(self.sizes)
+
+        # Random crop size (at least half the target size)
+        crop_h = random.randint(target_size // 2, min(h, target_size))
+        crop_w = random.randint(target_size // 2, min(w, target_size))
+
+        # Random crop position
+        top = random.randint(0, h - crop_h)
+        left = random.randint(0, w - crop_w)
+
+        # Crop image
+        image = image[top:top+crop_h, left:left+crop_w]
+
+        # Update lines (crop and shift)
+        from tools.patching import clip_line_to_patch
+        cropped_lines = []
+        for line in lines:
+            clipped = clip_line_to_patch(line, left, top, crop_w, crop_h)
+            if clipped:
+                cropped_lines.append(clipped)
+
+        # Resize to target size
+        scale_x = target_size / crop_w
+        scale_y = target_size / crop_h
+        image = cv2.resize(image, (target_size, target_size))
+
+        scaled_lines = []
+        for line in cropped_lines:
+            scaled_line = Line(
+                x1=line.x1 * scale_x,
+                y1=line.y1 * scale_y,
+                x2=line.x2 * scale_x,
+                y2=line.y2 * scale_y,
+                direction=line.direction,
+                visible=line.visible
+            )
+            scaled_lines.append(scaled_line)
+
+        return image, scaled_lines
+
+
+class LineAugmentation(object):
+    """Augmentation pipeline for line detection data.
+
+    Args:
+        size: Target image size (default: 512)
+        enable_photometric: Enable photometric distortions (default: True)
+        enable_crop: Enable random crop augmentation (default: True)
+    """
+
+    def __init__(self, size=512, means=(), enable_photometric=True, enable_crop=True):
+        self.size = size
+
+        transforms = [LineConvertFromInts()]
+
+        if enable_photometric:
+            transforms.append(LinePhotometricDistort())
+
+        if enable_crop:
+            transforms.append(LineRandomResizeCrop(
+                list(range(max(self.size - 32 * 10, 384), self.size + 1, 32)),
+                p=0.5
+            ))
+
+        transforms.append(LineResize(self.size))
+
+        self.augment = LineCompose(transforms)
+
+    def __call__(self, img, lines):
+        return self.augment(img, lines)

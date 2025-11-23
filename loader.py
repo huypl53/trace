@@ -277,3 +277,157 @@ class TRACE_Dataset(data.Dataset):
             torch.from_numpy(gt_image.astype(np.float32)),
             torch.from_numpy(gt_weight.astype(np.float32)),
         )
+
+
+def LineGTTransform(lines, width, height, visible_only=False):
+    """
+    Create ground truth heatmaps from Line objects.
+
+    Args:
+        lines: List of Line objects
+        width: Image width
+        height: Image height
+        visible_only: If True, only render visible lines
+
+    Returns:
+        heatmap_gt: (H, W, 3) array with channels [corners, horizontal, vertical]
+        weight_mask: (H, W) weight mask
+    """
+    height = int(height)
+    width = int(width)
+
+    # Create heatmaps
+    heatmap_gt_hor = np.zeros((height, width), dtype=np.float32)
+    heatmap_gt_ver = np.zeros((height, width), dtype=np.float32)
+    heatmap_gt_ihor = np.zeros((height, width), dtype=np.float32)
+    heatmap_gt_iver = np.zeros((height, width), dtype=np.float32)
+    weight_mask = np.ones((height, width), dtype=np.float32)
+
+    thickness = 2
+
+    for line in lines:
+        # Skip invisible lines if visible_only is True
+        if visible_only and not line.visible:
+            continue
+
+        # Convert coordinates to integers
+        p1 = (int(line.x1), int(line.y1))
+        p2 = (int(line.x2), int(line.y2))
+
+        # Draw line on appropriate heatmap
+        if line.direction == 'horizontal':
+            if line.visible:
+                cv2.line(heatmap_gt_hor, p1, p2, color=1, thickness=thickness)
+            else:
+                cv2.line(heatmap_gt_ihor, p1, p2, color=1, thickness=thickness)
+        else:  # vertical
+            if line.visible:
+                cv2.line(heatmap_gt_ver, p1, p2, color=1, thickness=thickness)
+            else:
+                cv2.line(heatmap_gt_iver, p1, p2, color=1, thickness=thickness)
+
+    # Combine heatmaps
+    # For line detection, we don't have corner heatmap, so use zeros
+    heatmap_gt_corners = np.zeros((height, width), dtype=np.float32)
+
+    heatmap_gt = np.stack([heatmap_gt_corners, heatmap_gt_hor, heatmap_gt_ver], axis=-1)
+    if not visible_only:
+        heatmap_gt = np.concatenate([heatmap_gt, heatmap_gt_ihor[..., np.newaxis], heatmap_gt_iver[..., np.newaxis]], axis=-1)
+
+    return heatmap_gt, weight_mask
+
+
+class LineDataset(data.Dataset):
+    """
+    Dataset for table line detection using Line objects.
+
+    Arguments:
+        data_dir: Path to directory containing image/JSON pairs
+        scale_down: Downscaling factor for ground truth
+        visible_only: If True, only use visible lines
+        transform: Optional augmentation/transformation
+    """
+
+    def __init__(self, data_dir, scale_down=2, visible_only=False, transform=None):
+        import json
+        from pathlib import Path
+        from tools.types import Line
+
+        self.data_dir = Path(data_dir)
+        self.scale_down = scale_down
+        self.visible_only = visible_only
+        self.transform = transform
+
+        # Find all JSON files
+        self.samples = []
+        for json_file in self.data_dir.glob("*.json"):
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+
+            image_name = data.get('image')
+            if not image_name:
+                continue
+
+            image_path = self.data_dir / image_name
+            if not image_path.exists():
+                continue
+
+            # Parse lines
+            lines = [Line(**line_dict) for line_dict in data['lines']]
+
+            self.samples.append({
+                'image_path': str(image_path),
+                'lines': lines
+            })
+
+        print(f"LineDataset: Found {len(self.samples)} samples in {data_dir}")
+        cv2.setNumThreads(0)
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        sample = self.samples[index]
+
+        # Load image
+        img = cv2.imread(sample['image_path'], cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        height, width, _ = img.shape
+
+        lines = sample['lines']
+
+        # Apply augmentation if provided
+        if self.transform:
+            img, lines = self.transform(img, lines)
+            height, width, _ = img.shape
+
+        # Create GT heatmap
+        gt_width = width / self.scale_down
+        gt_height = height / self.scale_down
+
+        # Scale lines for GT resolution
+        scaled_lines = []
+        for line in lines:
+            from tools.types import Line
+            scaled_line = Line(
+                x1=line.x1 / self.scale_down,
+                y1=line.y1 / self.scale_down,
+                x2=line.x2 / self.scale_down,
+                y2=line.y2 / self.scale_down,
+                direction=line.direction,
+                visible=line.visible
+            )
+            scaled_lines.append(scaled_line)
+
+        gt_image, gt_weight = LineGTTransform(scaled_lines, gt_width, gt_height, self.visible_only)
+        _, _, gt_ch = gt_image.shape
+        gt_weight = np.array([gt_weight] * gt_ch).transpose(1, 2, 0)
+
+        # Preprocessing for pre-trained model
+        img = imgproc.normalizeMeanVariance(img)
+
+        return (
+            torch.from_numpy(img.astype(np.float32)).permute(2, 0, 1),
+            torch.from_numpy(gt_image.astype(np.float32)),
+            torch.from_numpy(gt_weight.astype(np.float32)),
+        )
