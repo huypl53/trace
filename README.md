@@ -71,6 +71,45 @@ Once you have extracted the files, you can use them as a training set by copying
 #### WTW
 If you intend to train the table in the wild, you may leverage the [WTW](https://github.com/wangwen-whu/WTW-Dataset) dataset, given its adherence to the same XML format. However, note that in WTW, implicit lines are treated as negative separators. Be mindful that mixing different types of datasets may have a negative impact.
 
+### Generating masks from annotations
+You can convert TRACE JSON annotations into training masks (and optionally visualizations) with `generate_masks_from_json.py`. Masks are written alongside the dataset folders, and visualizations are saved under `<dataset>/mask_visualizations` unless another directory is supplied.
+
+```bash
+python generate_masks_from_json.py \
+    --data_path /data/trace \
+    --dataset SubTableBank \
+    --phase train \
+    --scale_down 2 \
+    --no-visualize  # drop this flag to save preview PNGs
+```
+
+Available options include `--crop_tables`, `--pad_min`, `--pad_max`, `--output_dir`, and the paired `--visualize/--no-visualize` flags to toggle saving PNG previews of each generated mask.
+
+### Generating cropped table patches
+The `generate_table_patches.py` script walks a directory that holds TRACE-style JSON annotations and their source images, crops each table (optionally with random padding), and stores the cropped RGB table plus the corresponding mask/weight tensors in a mirrored folder tree under the output directory. You can also request uniformly sampled square patches from the cropped table area to augment training data.
+
+```bash
+python generate_table_patches.py \
+    --input_dir /data/trace/SubTableBank \
+    --output_dir /data/trace/table_patches \
+    --phase train \
+    --scale_down 2 \
+    --pad_min 4 --pad_max 32 \
+    --patch_min 256 --patch_max 512 \
+    --num_patches 5 \
+    --seed 42
+```
+
+Key options:
+- `--phase`: restrict processing to a subdirectory such as `train` or `test` when the input tree contains multiple phases.
+- `--scale_down`: factor applied when rasterizing the GT masks with `GTTransform`; match this to your model config.
+- `--pad_min/--pad_max`: min/max random padding (in pixels) applied around the detected table bounds before cropping; use zeros to disable padding.
+- `--patch_min/--patch_max`: inclusive range for the random square patch sizes sampled from each cropped table; values are clamped to fit inside the crop, and patches are skipped entirely when `--num_patches 0`.
+- `--num_patches`: number of random patches to draw per table; each patch produces a PNG plus an `.npy` file that keeps the mask slice, weight slice, and metadata such as the patch bounding box relative to the table crop.
+- `--seed`: set to reproduce the random padding and patch selection.
+
+Each table crop is written as `<output>/<rel_path>/table.png` with metadata-packed `table_mask.npy`. When patches are enabled, they are stored under `<output>/<rel_path>/patches/patch_##.png` plus matching `.npy` mask bundles referencing the parent crop and source image.
+
 ## Training & Test Instructions
 
 * Check Configurations (in the `./configs` directory)

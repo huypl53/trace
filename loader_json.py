@@ -55,6 +55,27 @@ class TRACE_Dataset_npy(data.Dataset):
 
         cv2.setNumThreads(0)  # prevent deadlock caused by conflict with pytorch
 
+    @staticmethod
+    def _resize_tensor(
+        tensor, target_width, target_height, interpolation=cv2.INTER_LINEAR
+    ):
+        if tensor is None:
+            return None
+        if tensor.ndim == 2:
+            return cv2.resize(
+                tensor, (target_width, target_height), interpolation=interpolation
+            )
+
+        channels = tensor.shape[2]
+        resized = np.zeros((target_height, target_width, channels), dtype=tensor.dtype)
+        for ch in range(channels):
+            resized[:, :, ch] = cv2.resize(
+                tensor[:, :, ch],
+                (target_width, target_height),
+                interpolation=interpolation,
+            )
+        return resized
+
     def __len__(self):
         return self.dataset_size
 
@@ -104,44 +125,62 @@ class TRACE_Dataset_npy(data.Dataset):
 
         # Transformation
         if self.transform is not None:
-            # Apply transforms to image
-            # Create dummy quads for transform compatibility (not used when loading masks)
-            dummy_gt = np.zeros((0, 8), dtype=np.float32)
-            dummy_lines = []
-            img, dummy_gt, dummy_lines, _ = self.transform(img, dummy_gt, dummy_lines)
+            mask_full_res = self._resize_tensor(
+                gt_image, width, height, interpolation=cv2.INTER_LINEAR
+            )
+            weight_full_res = gt_weight
+            if weight_full_res.ndim == 2:
+                weight_full_res = np.expand_dims(weight_full_res, axis=2)
+            weight_full_res = self._resize_tensor(
+                weight_full_res, width, height, interpolation=cv2.INTER_LINEAR
+            )
+
+            img, mask_full_res, weight_full_res = self.transform(
+                img, mask_full_res, weight_full_res
+            )
             width = height = self.transform.size
 
-            # Apply same geometric transforms to mask
-            # Resize mask to match transformed image size (accounting for scale_down)
+            target_mask_height = int(height / self.scale_down)
+            target_mask_width = int(width / self.scale_down)
+            gt_image = self._resize_tensor(
+                mask_full_res,
+                target_mask_width,
+                target_mask_height,
+                interpolation=cv2.INTER_LINEAR,
+            )
+            gt_weight = self._resize_tensor(
+                weight_full_res,
+                target_mask_width,
+                target_mask_height,
+                interpolation=cv2.INTER_LINEAR,
+            )
+            if gt_weight.ndim == 3 and gt_weight.shape[2] == 1:
+                gt_weight = gt_weight[:, :, 0]
+        else:
             target_mask_height = int(height / self.scale_down)
             target_mask_width = int(width / self.scale_down)
 
             if gt_image.shape[:2] != (target_mask_height, target_mask_width):
-                # Resize mask to target size
-                gt_image_resized = np.zeros(
-                    (target_mask_height, target_mask_width, gt_image.shape[2]),
-                    dtype=gt_image.dtype,
+                gt_image = self._resize_tensor(
+                    gt_image,
+                    target_mask_width,
+                    target_mask_height,
+                    interpolation=cv2.INTER_LINEAR,
                 )
-                for ch in range(gt_image.shape[2]):
-                    gt_image_resized[:, :, ch] = cv2.resize(
-                        gt_image[:, :, ch],
-                        (target_mask_width, target_mask_height),
-                        interpolation=cv2.INTER_LINEAR,
-                    )
-                gt_image = gt_image_resized
 
-                # Resize weight mask
+            if gt_weight.shape[:2] != (target_mask_height, target_mask_width):
                 gt_weight = cv2.resize(
                     gt_weight,
                     (target_mask_width, target_mask_height),
                     interpolation=cv2.INTER_LINEAR,
                 )
-        # else: No transforms, use mask as-is (already loaded at correct size)
 
         # Expand weight to match mask channels
         _, _, gt_ch = gt_image.shape
         if gt_weight.ndim == 2:
             gt_weight = np.array([gt_weight] * gt_ch).transpose(1, 2, 0)
+        elif gt_weight.ndim == 3 and gt_weight.shape[2] == 1:
+            gt_weight = np.repeat(gt_weight, gt_ch, axis=2)
 
         # Preprocessing for pre-trained model
         img = imgproc.normalizeMeanVariance(img)

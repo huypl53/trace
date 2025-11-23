@@ -81,6 +81,7 @@ def generate_masks(
     crop_tables=False,
     pad_min=0,
     pad_max=0,
+    visualize=True,
 ):
     """Generate mask images from JSON files offline.
 
@@ -98,8 +99,9 @@ def generate_masks(
         base_folder = phase_folder
     
     # Set up output directory for visualizations
-    if output_dir is None:
-        output_dir = os.path.join(base_folder, "mask_visualizations")
+    if visualize:
+        if output_dir is None:
+            output_dir = os.path.join(base_folder, "mask_visualizations")
 
     # Directory for saving cropped image patches (only used when crop_tables is True)
     patch_dir = None
@@ -108,7 +110,8 @@ def generate_masks(
         os.makedirs(patch_dir, exist_ok=True)
     
     print(f"Generating masks for {len(parser.gt)} images...")
-    print(f"Visualizations will be saved to: {output_dir}")
+    if visualize:
+        print(f"Visualizations will be saved to: {output_dir}")
     
     for gt_entry in tqdm.tqdm(parser.gt):
         img_file = gt_entry["file_name"]
@@ -129,8 +132,9 @@ def generate_masks(
                 gt_image = mask_data["mask"]
 
                 # Visualization uses the original full image size
-                vis_output_path = os.path.join(output_dir, basename)
-                visualize_mask(gt_image, vis_output_path, width, height, scale_down)
+                if visualize:
+                    vis_output_path = os.path.join(output_dir, basename)
+                    visualize_mask(gt_image, vis_output_path, width, height, scale_down)
             else:
                 # Extract quads and lines
                 quads = gt_entry["quads"]
@@ -223,8 +227,9 @@ def generate_masks(
                 np.save(mask_file, {"mask": gt_image, "weight": gt_weight})
 
                 # Visualize cropped (or full-page) mask at the corresponding image size
-                vis_output_path = os.path.join(output_dir, basename)
-                visualize_mask(gt_image, vis_output_path, width, height, scale_down)
+                if visualize:
+                    vis_output_path = os.path.join(output_dir, basename)
+                    visualize_mask(gt_image, vis_output_path, width, height, scale_down)
             
         except Exception as e:
             print(f"Error processing {img_file}: {e}")
@@ -262,6 +267,19 @@ if __name__ == "__main__":
         default=0,
         help="Maximum padding (in pixels) around table when cropping",
     )
+    parser.add_argument(
+        "--visualize",
+        dest="visualize",
+        action="store_true",
+        help="Generate and save mask visualizations (default: enabled)",
+    )
+    parser.add_argument(
+        "--no-visualize",
+        dest="visualize",
+        action="store_false",
+        help="Disable saving mask visualizations",
+    )
+    parser.set_defaults(visualize=True)
     args = parser.parse_args()
 
     generate_masks(
@@ -273,5 +291,5 @@ if __name__ == "__main__":
         args.crop_tables,
         args.pad_min,
         args.pad_max,
+        args.visualize,
     )
-

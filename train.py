@@ -19,7 +19,7 @@ from torch.autograd import Variable
 
 import file_utils
 import imgproc
-from augmentations import TRACEAugmentation
+from augmentations import TRACEMaskAugmentation
 from loader_json import TRACE_Dataset_npy as TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
@@ -181,7 +181,7 @@ def train():
 
     criterion = TRACELoss(neg_pos_ratio=3)
 
-    transform = TRACEAugmentation(args.train_size, means)
+    transform = TRACEMaskAugmentation(args.train_size, means)
     print("Loading Training Dataset... {}".format(str(args.train_sets)))
     dataset = TRACE_Dataset(
         args.train_sets,
