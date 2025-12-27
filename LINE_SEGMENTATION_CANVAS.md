@@ -17,6 +17,26 @@ data/raw_canvas/
 
 The script crops regions from the **original color images** using the table's explicit `width`/`height` properties.
 
+## 1b) Optional: Augment Canvas JSON (Layout/Style/Text)
+
+Use the augmentation script to create new canvas JSONs by:
+- Changing row/column sizes
+- Randomly merging cells
+- Mutating cell text (Japanese + digits + a few ASCII chars by default)
+- Jittering colors
+
+```bash
+uv run python scripts/augment_canvas_data.py \
+    --input_dir data/raw_canvas \
+    --output_dir data/raw_canvas_aug \
+    --num_aug 3 \
+    --preserve_table_size \
+    --fill_empty_text
+```
+
+This script only modifies JSON. If you rely on real images, re-render or use the fallback renderer in the next step.
+Point `--input_dir` in the next step to the augmented folder if you want to use the new JSONs.
+
 ## 2) Convert Canvas JSON -> Line Dataset
 
 Use the `prepare_line_dataset.py` script to:
