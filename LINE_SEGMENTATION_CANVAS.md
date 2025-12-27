@@ -105,6 +105,16 @@ Inspect generated lines by rendering a mask directly from a canvas JSON:
 uv run python draw_canvas_line_mask.py --input samples/canvas-table-demo.json --out_dir samples
 ```
 
+Process all canvas JSONs in a directory (optionally recursive):
+
+```bash
+uv run python draw_canvas_line_mask.py --input data/line_dataset/train --out_dir samples/masks
+```
+
+```bash
+uv run python draw_canvas_line_mask.py --input data/line_dataset/train --out_dir samples/masks --recursive
+```
+
 Outputs:
 - `*_mask_h.png` (horizontal lines)
 - `*_mask_v.png` (vertical lines)
@@ -127,9 +137,28 @@ Common overrides:
 - `--use_gaussian` to smooth heatmaps
 - `--train_size` to set the input resize dimension
 
-## 5) Evaluate Line Segmentation
+## 5) Run Inference (Generate Predictions)
 
-After inference, evaluate predictions against ground truth:
+Run inference on a folder of images and write line JSON predictions:
+
+```bash
+uv run python line_infer.py \
+    --input data/line_dataset/test \
+    --trained_model eval/ckpt_100000.pth \
+    --output_dir results/predictions \
+    --input_size 1280 \
+    --threshold_h 0.3 \
+    --threshold_v 0.3
+```
+
+Notes:
+- `--input_size` should match the `train_size` used during training.
+- Predictions are saved as `results/predictions/<image_basename>.json`.
+- Add `--save_heatmap` to dump debug heatmaps next to predictions (`*_heatmap_h.png`, `*_heatmap_v.png`, and `*_heatmap_combined.png`).
+
+## 6) Evaluate Line Segmentation
+
+Evaluate predictions against ground truth JSONs:
 
 ```bash
 uv run python evaluation/line_eval.py \
