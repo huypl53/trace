@@ -19,8 +19,8 @@ from torch.autograd import Variable
 
 import file_utils
 import imgproc
-from augmentations import TRACEAugmentation
-from loader import TRACE_Dataset
+from augmentations import LineAugmentation, TRACEAugmentation
+from loader import Line_Dataset, TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
 from parse_config import parse_config_train
@@ -75,6 +75,11 @@ parser.add_argument("--mixratio", default=[1], help="Mixture ratio of datasaets"
 parser.add_argument("--eval_set", default=None, type=str, help="Evaluation dataset")
 parser.add_argument("--freeze", action="store_true", default=False, help="Freeze basenet")
 parser.add_argument("--comment", default="write_comment_here", type=str, help="Tensorboard log comment")
+parser.add_argument("--task", default="table", choices=["table", "line"], help="Training task")
+parser.add_argument("--output_ch", default=5, type=int, help="Number of output channels")
+parser.add_argument("--line_thickness", default=3, type=int, help="Line thickness for line heatmaps")
+parser.add_argument("--use_gaussian", default=True, type=str2bool, help="Apply Gaussian blur to line heatmaps")
+parser.add_argument("--scale_down", default=2, type=int, help="Downscale factor for output heatmaps")
 args = parser.parse_args()
 
 # parse config file
@@ -87,7 +92,7 @@ batch_size = args.batch_size
 max_iter = args.max_iter
 stepvalues = [10000 * (k + 1) for k in range(10)]
 gamma = args.gamma
-scale_down = 2
+scale_down = args.scale_down
 out_dim = int(args.train_size / scale_down)
 
 if args.cuda and torch.cuda.is_available():
@@ -107,7 +112,7 @@ def train():
     file_utils.change_permissions_recursive(args.save_folder, 0o777)
 
     # build network
-    net = TraceModel()
+    net = TraceModel(output_ch=args.output_ch)
 
     print("the number of model parameters: {}".format(sum([p.data.nelement() for p in net.parameters()])))
 
@@ -131,16 +136,30 @@ def train():
 
     criterion = TRACELoss(neg_pos_ratio=3)
 
-    transform = TRACEAugmentation(args.train_size, means)
-    print("Loading Training Dataset... {}".format(str(args.train_sets)))
-    dataset = TRACE_Dataset(
-        args.train_sets,
-        rootpath=args.data_path,
-        phase="train",
-        scale_down=scale_down,
-        transform=transform,
-        mixratio=args.mixratio,
-    )
+    if args.task == "line":
+        transform = LineAugmentation(args.train_size)
+        print("Loading Training Dataset... {}".format(str(args.train_sets)))
+        dataset = Line_Dataset(
+            args.train_sets,
+            rootpath=args.data_path,
+            phase="train",
+            scale_down=scale_down,
+            transform=transform,
+            mixratio=args.mixratio,
+            line_thickness=args.line_thickness,
+            use_gaussian=args.use_gaussian,
+        )
+    else:
+        transform = TRACEAugmentation(args.train_size, means)
+        print("Loading Training Dataset... {}".format(str(args.train_sets)))
+        dataset = TRACE_Dataset(
+            args.train_sets,
+            rootpath=args.data_path,
+            phase="train",
+            scale_down=scale_down,
+            transform=transform,
+            mixratio=args.mixratio,
+        )
     if args.eval:
         print("Evaluation Dataset... {}".format(str(args.eval_set)))
     print("Start training...")
@@ -237,36 +256,66 @@ def train():
             render_img = imgproc.denormalizeMeanVariance(render_img)
             in_img = np.clip(render_img.transpose(2, 0, 1), 0, 255).astype(np.uint8)
 
-            render_img = np.zeros((3, out_dim, out_dim * 8), dtype=np.uint8)
-            render_img[:, :, :out_dim] = in_img
-            render_gt_weight = np.clip(orig_weights[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255).astype(
-                np.uint8
-            )
+            if args.task == "line":
+                num_channels = orig_gts.shape[2]
+                num_cols = 1 + (num_channels * 2) + 1
+                render_img = np.zeros((3, out_dim, out_dim * num_cols), dtype=np.uint8)
+                render_img[:, :, :out_dim] = in_img
+                render_gt_weight = np.clip(
+                    orig_weights[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                col = 1
+                for ch in range(num_channels):
+                    render_img[0, :, col * out_dim : (col + 1) * out_dim] = np.clip(
+                        orig_gts[:, :, ch].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                    ).astype(np.uint8)
+                    col += 1
+                    render_img[0, :, col * out_dim : (col + 1) * out_dim] = np.clip(
+                        pred_img[:, :, ch] * 255, 0, 255
+                    ).astype(np.uint8)
+                    col += 1
+                render_img[:, :, col * out_dim : (col + 1) * out_dim] = render_gt_weight
+            else:
+                render_img = np.zeros((3, out_dim, out_dim * 8), dtype=np.uint8)
+                render_img[:, :, :out_dim] = in_img
+                render_gt_weight = np.clip(
+                    orig_weights[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
 
-            # Corner map
-            render_img[0, :, out_dim : 2 * out_dim] = np.clip(
-                orig_gts[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
-            ).astype(np.uint8)
-            render_img[0, :, 2 * out_dim : 3 * out_dim] = np.clip((pred_img[:, :, 0]) * 255, 0, 255).astype(np.uint8)
+                # Corner map
+                render_img[0, :, out_dim : 2 * out_dim] = np.clip(
+                    orig_gts[:, :, 0].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[0, :, 2 * out_dim : 3 * out_dim] = np.clip(
+                    (pred_img[:, :, 0]) * 255, 0, 255
+                ).astype(np.uint8)
 
-            # Link map
-            render_img[0, :, 3 * out_dim : 4 * out_dim] = np.clip(
-                orig_gts[:, :, 1].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
-            ).astype(np.uint8)
-            render_img[1, :, 3 * out_dim : 4 * out_dim] = np.clip(
-                orig_gts[:, :, 2].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
-            ).astype(np.uint8)
-            render_img[0, :, 4 * out_dim : 5 * out_dim] = np.clip(pred_img[:, :, 1] * 255, 0, 255).astype(np.uint8)
-            render_img[1, :, 4 * out_dim : 5 * out_dim] = np.clip(pred_img[:, :, 2] * 255, 0, 255).astype(np.uint8)
-            render_img[0, :, 5 * out_dim : 6 * out_dim] = np.clip(
-                orig_gts[:, :, 3].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
-            ).astype(np.uint8)
-            render_img[1, :, 5 * out_dim : 6 * out_dim] = np.clip(
-                orig_gts[:, :, 4].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
-            ).astype(np.uint8)
-            render_img[0, :, 6 * out_dim : 7 * out_dim] = np.clip(pred_img[:, :, 3] * 255, 0, 255).astype(np.uint8)
-            render_img[1, :, 6 * out_dim : 7 * out_dim] = np.clip(pred_img[:, :, 4] * 255, 0, 255).astype(np.uint8)
-            render_img[:, :, -out_dim - 1 : -1] = render_gt_weight
+                # Link map
+                render_img[0, :, 3 * out_dim : 4 * out_dim] = np.clip(
+                    orig_gts[:, :, 1].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[1, :, 3 * out_dim : 4 * out_dim] = np.clip(
+                    orig_gts[:, :, 2].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[0, :, 4 * out_dim : 5 * out_dim] = np.clip(
+                    pred_img[:, :, 1] * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[1, :, 4 * out_dim : 5 * out_dim] = np.clip(
+                    pred_img[:, :, 2] * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[0, :, 5 * out_dim : 6 * out_dim] = np.clip(
+                    orig_gts[:, :, 3].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[1, :, 5 * out_dim : 6 * out_dim] = np.clip(
+                    orig_gts[:, :, 4].numpy().reshape(1, out_dim, out_dim) * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[0, :, 6 * out_dim : 7 * out_dim] = np.clip(
+                    pred_img[:, :, 3] * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[1, :, 6 * out_dim : 7 * out_dim] = np.clip(
+                    pred_img[:, :, 4] * 255, 0, 255
+                ).astype(np.uint8)
+                render_img[:, :, -out_dim - 1 : -1] = render_gt_weight
 
             writer.add_scalar("loss", loss.sum().item(), iteration)
             writer.add_image("image", render_img, iteration)

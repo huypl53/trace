@@ -1,0 +1,16 @@
+{
+  "name": "line_segmentation",
+  "train_size": 1280,
+  "data_path": "/workspace/",
+  "train_sets": "data",
+  "eval_set": "data",
+  "canvas_size": 1280,
+  "output_ch": 2,
+  "thresholds": [
+    0.3,
+    0.2
+  ],
+  "line_thickness": 3,
+  "use_gaussian": true,
+  "task": "line"
+}

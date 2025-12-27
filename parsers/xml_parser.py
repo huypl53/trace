@@ -1,6 +1,6 @@
 import os
 import random
-from collections import Iterable
+from collections.abc import Iterable
 from xml.dom import minidom
 
 import file_utils

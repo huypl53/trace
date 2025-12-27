@@ -313,3 +313,13 @@ class TRACEAugmentation(object):
 
     def __call__(self, img, boxes, labels, angles=None):
         return self.augment(img, boxes, labels, angles)
+
+
+class LineAugmentation(object):
+    def __init__(self, size=512):
+        self.size = size
+
+    def __call__(self, img, lines):
+        if img.shape[0] != self.size or img.shape[1] != self.size:
+            img = cv2.resize(img.astype(np.uint8), (self.size, self.size), interpolation=cv2.INTER_LINEAR)
+        return img, lines

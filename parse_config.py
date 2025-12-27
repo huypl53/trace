@@ -45,6 +45,14 @@ def parse_config_train(args):
                 args.mixratio = arguments.get("mixratio", args.mixratio)
             if "scale_down" in args.__dict__:
                 args.scale_down = arguments.get("scale_down", args.scale_down)
+            if "task" in args.__dict__:
+                args.task = arguments.get("task", args.task)
+            if "output_ch" in args.__dict__:
+                args.output_ch = arguments.get("output_ch", args.output_ch)
+            if "line_thickness" in args.__dict__:
+                args.line_thickness = arguments.get("line_thickness", args.line_thickness)
+            if "use_gaussian" in args.__dict__:
+                args.use_gaussian = arguments.get("use_gaussian", args.use_gaussian)
 
             # For evaluation
             if "canvas_size" in args.__dict__:
