@@ -104,13 +104,16 @@ def infer_image(net, image, args):
             y = y[0]
     heatmap = y[0].cpu().numpy()
 
-    out_h, out_w, _ = heatmap.shape
     resized_h, resized_w = resized.shape[:2]
-    h_map = cv2.resize(heatmap[:, :, 0], (resized_w, resized_h), interpolation=cv2.INTER_LINEAR)
-    v_map = cv2.resize(heatmap[:, :, 1], (resized_w, resized_h), interpolation=cv2.INTER_LINEAR)
+    h_map_resized = cv2.resize(heatmap[:, :, 0], (resized_w, resized_h), interpolation=cv2.INTER_LINEAR)
+    v_map_resized = cv2.resize(heatmap[:, :, 1], (resized_w, resized_h), interpolation=cv2.INTER_LINEAR)
 
-    h_bin = (h_map >= args.threshold_h).astype(np.uint8) * 255
-    v_bin = (v_map >= args.threshold_v).astype(np.uint8) * 255
+    orig_h, orig_w = image.shape[:2]
+    h_map = cv2.resize(h_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+    v_map = cv2.resize(v_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+
+    h_bin = (h_map_resized >= args.threshold_h).astype(np.uint8) * 255
+    v_bin = (v_map_resized >= args.threshold_v).astype(np.uint8) * 255
 
     raw_h = extract_lines(h_bin, args.hough_threshold, args.min_line_length, args.max_line_gap)
     raw_v = extract_lines(v_bin, args.hough_threshold, args.min_line_length, args.max_line_gap)
