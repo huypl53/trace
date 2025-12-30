@@ -21,7 +21,7 @@ def draw_line_masks(lines_h, lines_v, width, height):
     return mask_h, mask_v
 
 
-def process_file(path, out_dir, width_override=None, height_override=None):
+def process_file(path, out_dir, width_override=None, height_override=None, preview_only=False):
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -41,8 +41,9 @@ def process_file(path, out_dir, width_override=None, height_override=None):
     os.makedirs(out_dir, exist_ok=True)
     h_path = os.path.join(out_dir, f"{stem}_mask_h.png")
     v_path = os.path.join(out_dir, f"{stem}_mask_v.png")
-    cv2.imwrite(h_path, mask_h)
-    cv2.imwrite(v_path, mask_v)
+    if not preview_only:
+        cv2.imwrite(h_path, mask_h)
+        cv2.imwrite(v_path, mask_v)
 
     preview = np.zeros((height, width, 3), dtype=np.uint8)
     preview[:, :, 1] = mask_h
@@ -51,8 +52,9 @@ def process_file(path, out_dir, width_override=None, height_override=None):
     cv2.imwrite(preview_path, preview)
 
     print("Saved:")
-    print(h_path)
-    print(v_path)
+    if not preview_only:
+        print(h_path)
+        print(v_path)
     print(preview_path)
 
 
@@ -79,6 +81,7 @@ def main():
     parser.add_argument("--width", type=int, default=None, help="Override output width")
     parser.add_argument("--height", type=int, default=None, help="Override output height")
     parser.add_argument("--recursive", action="store_true", help="Process JSONs in subdirectories")
+    parser.add_argument("--preview-only", action="store_true", help="Only write preview image")
     args = parser.parse_args()
 
     if not os.path.exists(args.input):
@@ -89,7 +92,7 @@ def main():
         raise ValueError(f"No JSON files found in {args.input}")
 
     for path in json_files:
-        process_file(path, args.out_dir, args.width, args.height)
+        process_file(path, args.out_dir, args.width, args.height, args.preview_only)
 
 
 if __name__ == "__main__":

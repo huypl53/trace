@@ -30,7 +30,6 @@ Usage:
 
 import argparse
 import json
-import math
 import os
 import random
 import shutil
@@ -39,140 +38,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-
-def _build_sizes(size_map, count, total):
-    """Build list of sizes from size map."""
-    if count <= 0:
-        return []
-    size_map = size_map or {}
-    if total is None:
-        total = sum(float(v) for v in size_map.values()) if size_map else 0.0
-    default = (total / count) if total else 0.0
-    sizes = []
-    for i in range(count):
-        key = str(i)
-        sizes.append(float(size_map.get(key, default)))
-    return sizes
+from parsers.canvas_parser import extract_single_table_data
 
 
-def _border_visible(cell_style, key):
-    """Check if border is visible."""
-    if key not in cell_style:
-        return True
-    if cell_style[key] is None:
-        return True
-    try:
-        return float(cell_style[key]) > 0
-    except (TypeError, ValueError):
-        return False
-
-
-def _border_thickness(cell_style, key, default=1):
-    """Get border thickness."""
-    if key in cell_style:
-        try:
-            return max(1, int(round(float(cell_style[key]))))
-        except (TypeError, ValueError):
-            return default
-    return default
-
-
-def extract_single_table_data(item):
-    """Extract complete table data including lines and rendering info.
-
-    Returns:
-        dict with keys: bounds, lines_h, lines_v, cells (for rendering)
-    """
-    props = item.get("properties", {})
-    rows = int(props.get("rows", 0))
-    cols = int(props.get("columns", 0))
-    table_x = float(item.get("x", 0))
-    table_y = float(item.get("y", 0))
-
-    # Get width/height: prefer item level, fallback to properties
-    table_w = item.get("width") or props.get("width")
-    table_h = item.get("height") or props.get("height")
-    table_w = float(table_w) if table_w is not None else None
-    table_h = float(table_h) if table_h is not None else None
-
-    row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
-    col_widths = _build_sizes(props.get("columnWidths", {}), cols, table_w)
-
-    row_offsets = [0.0]
-    for h in row_heights:
-        row_offsets.append(row_offsets[-1] + h)
-    col_offsets = [0.0]
-    for w in col_widths:
-        col_offsets.append(col_offsets[-1] + w)
-
-    # Use explicit width/height if available, otherwise fall back to calculated
-    actual_w = table_w if table_w is not None else col_offsets[-1]
-    actual_h = table_h if table_h is not None else row_offsets[-1]
-
-    bounds = (
-        int(table_x),
-        int(table_y),
-        int(math.ceil(table_x + actual_w)),
-        int(math.ceil(table_y + actual_h)),
-    )
-
-    cell_data = props.get("cellData", {}) or {}
-    merged_cells = props.get("mergedCells", {}) or {}
-    hidden_cells = props.get("hiddenCells", {}) or {}
-
-    lines_h = []
-    lines_v = []
-    cells = []  # For rendering
-
-    def _round(x, y):
-        return (int(round(x)), int(round(y)))
-
-    for r in range(rows):
-        for c in range(cols):
-            key = f"{r}-{c}"
-            if hidden_cells.get(key):
-                continue
-
-            merged = merged_cells.get(key, {})
-            rowspan = int(merged.get("rowspan", 1))
-            colspan = int(merged.get("colspan", 1))
-
-            x0 = table_x + col_offsets[c]
-            x1 = table_x + col_offsets[min(c + colspan, len(col_offsets) - 1)]
-            y0 = table_y + row_offsets[r]
-            y1 = table_y + row_offsets[min(r + rowspan, len(row_offsets) - 1)]
-
-            cell_style = {}
-            cell_info = cell_data.get(key, {})
-            if cell_info:
-                cell_style = cell_info.get("cellStyle", {}) or {}
-
-            # Store cell for rendering
-            cells.append(
-                {
-                    "x0": int(x0),
-                    "y0": int(y0),
-                    "x1": int(x1),
-                    "y1": int(y1),
-                    "style": cell_style,
-                }
-            )
-
-            # Extract lines
-            if _border_visible(cell_style, "borderTopWidth"):
-                thickness = _border_thickness(cell_style, "borderTopWidth")
-                lines_h.append((_round(x0, y0), _round(x1, y0), thickness))
-            if _border_visible(cell_style, "borderBottomWidth"):
-                thickness = _border_thickness(cell_style, "borderBottomWidth")
-                lines_h.append((_round(x0, y1), _round(x1, y1), thickness))
-            if _border_visible(cell_style, "borderLeftWidth"):
-                thickness = _border_thickness(cell_style, "borderLeftWidth")
-                lines_v.append((_round(x0, y0), _round(x0, y1), thickness))
-            if _border_visible(cell_style, "borderRightWidth"):
-                thickness = _border_thickness(cell_style, "borderRightWidth")
-                lines_v.append((_round(x1, y0), _round(x1, y1), thickness))
-
-    return {"bounds": bounds, "lines_h": lines_h, "lines_v": lines_v, "cells": cells}
 
 
 def crop_table_from_image(image, table_data, padding=5):

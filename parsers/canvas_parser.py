@@ -3,7 +3,10 @@ import math
 
 
 def _get_table_dim(props, item, key):
-    return props.get(key, item.get(key))
+    value = props.get(key)
+    if value is None:
+        return item.get(key)
+    return value
 
 
 def _build_sizes(size_map, count, total):
@@ -29,13 +32,15 @@ def _border_visible(cell_style, key):
     try:
         return float(cell_style[key]) > 0
     except (TypeError, ValueError):
-        return False
+        return True
 
 
 def _border_thickness(cell_style, key, default=1):
     if key in cell_style:
+
         try:
-            return max(1, int(round(float(cell_style[key]))))
+            if cell_style[key] is not None:
+                return int(cell_style[key] )
         except (TypeError, ValueError):
             return default
     return default
@@ -109,7 +114,95 @@ def extract_table_lines(canvas_data):
     return lines_h, lines_v
 
 
+def extract_single_table_data(item):
+    """Extract table bounds, lines, and cell boxes from a table item."""
+    props = item.get("properties", {})
+    rows = int(props.get("rows", 0))
+    cols = int(props.get("columns", 0))
+    table_x = float(item.get("x", 0))
+    table_y = float(item.get("y", 0))
+    table_w = _get_table_dim(props, item, "width")
+    table_h = _get_table_dim(props, item, "height")
+    table_w = float(table_w) if table_w is not None else None
+    table_h = float(table_h) if table_h is not None else None
+
+    row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
+    col_widths = _build_sizes(props.get("columnWidths", {}), cols, table_w)
+
+    row_offsets = [0.0]
+    for h in row_heights:
+        row_offsets.append(row_offsets[-1] + h)
+    col_offsets = [0.0]
+    for w in col_widths:
+        col_offsets.append(col_offsets[-1] + w)
+
+    actual_w = table_w if table_w is not None else col_offsets[-1]
+    actual_h = table_h if table_h is not None else row_offsets[-1]
+
+    bounds = (
+        int(table_x),
+        int(table_y),
+        int(math.ceil(table_x + actual_w)),
+        int(math.ceil(table_y + actual_h)),
+    )
+
+    cell_data = props.get("cellData", {}) or {}
+    merged_cells = props.get("mergedCells", {}) or {}
+    hidden_cells = props.get("hiddenCells", {}) or {}
+
+    lines_h = []
+    lines_v = []
+    cells = []
+
+    for r in range(rows):
+        for c in range(cols):
+            key = f"{r}-{c}"
+            if hidden_cells.get(key):
+                continue
+            merged = merged_cells.get(key, {})
+            rowspan = int(merged.get("rowspan", 1))
+            colspan = int(merged.get("colspan", 1))
+
+            x0 = table_x + col_offsets[c]
+            x1 = table_x + col_offsets[min(c + colspan, len(col_offsets) - 1)]
+            y0 = table_y + row_offsets[r]
+            y1 = table_y + row_offsets[min(r + rowspan, len(row_offsets) - 1)]
+
+            cell_style = {}
+            if key in cell_data:
+                cell_style = cell_data[key].get("cellStyle", {}) or {}
+
+            cells.append(
+                {
+                    "x0": int(x0),
+                    "y0": int(y0),
+                    "x1": int(x1),
+                    "y1": int(y1),
+                    "style": cell_style,
+                }
+            )
+
+            if _border_visible(cell_style, "borderTopWidth"):
+                thickness = _border_thickness(cell_style, "borderTopWidth")
+                lines_h.append((_round_point(x0, y0), _round_point(x1, y0), thickness))
+            if _border_visible(cell_style, "borderBottomWidth"):
+                thickness = _border_thickness(cell_style, "borderBottomWidth")
+                lines_h.append((_round_point(x0, y1), _round_point(x1, y1), thickness))
+            if _border_visible(cell_style, "borderLeftWidth"):
+                thickness = _border_thickness(cell_style, "borderLeftWidth")
+                lines_v.append((_round_point(x0, y0), _round_point(x0, y1), thickness))
+            if _border_visible(cell_style, "borderRightWidth"):
+                thickness = _border_thickness(cell_style, "borderRightWidth")
+                lines_v.append((_round_point(x1, y0), _round_point(x1, y1), thickness))
+
+    return {"bounds": bounds, "lines_h": lines_h, "lines_v": lines_v, "cells": cells}
+
+
 def infer_canvas_size(canvas_data):
+    canvas_width = canvas_data.get("canvasWidth")
+    canvas_height = canvas_data.get("canvasHeight")
+    if canvas_width is not None and canvas_height is not None:
+        return int(math.ceil(float(canvas_width))), int(math.ceil(float(canvas_height)))
     max_x = 0.0
     max_y = 0.0
     for item in canvas_data.get("items", []):
