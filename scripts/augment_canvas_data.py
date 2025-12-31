@@ -13,9 +13,11 @@ Augmentations include:
 import argparse
 import copy
 import json
+import math
 import os
 import random
 import string
+from tqdm import tqdm
 
 
 DIGITS = string.digits
@@ -352,6 +354,39 @@ def augment_canvas(canvas_data, rng, args):
     data = copy.deepcopy(canvas_data)
     for item in data.get("items", []):
         augment_table(item, rng, args)
+    max_x = 0.0
+    max_y = 0.0
+    for item in data.get("items", []):
+        if item.get("type") != "table":
+            continue
+        props = item.get("properties", {})
+        rows = int(props.get("rows", 0))
+        cols = int(props.get("columns", 0))
+        if rows <= 0 or cols <= 0:
+            continue
+        table_x = float(item.get("x", 0))
+        table_y = float(item.get("y", 0))
+        total_w = props.get("width")
+        if total_w is None:
+            total_w = item.get("width")
+        total_h = props.get("height")
+        if total_h is None:
+            total_h = item.get("height")
+        total_w = float(total_w) if total_w is not None else None
+        total_h = float(total_h) if total_h is not None else None
+
+        row_sizes = build_sizes(props.get("rowHeights", {}), rows, total_h)
+        col_sizes = build_sizes(props.get("columnWidths", {}), cols, total_w)
+        table_w = sum(col_sizes) if col_sizes else float(total_w or 0.0)
+        table_h = sum(row_sizes) if row_sizes else float(total_h or 0.0)
+
+        max_x = max(max_x, table_x + table_w)
+        max_y = max(max_y, table_y + table_h)
+
+    if max_x > 0 or max_y > 0:
+        padding = max(0, int(args.canvas_padding))
+        data["canvasWidth"] = int(math.ceil(max_x + padding))
+        data["canvasHeight"] = int(math.ceil(max_y + padding))
     return data
 
 
@@ -411,6 +446,12 @@ def main():
 
     parser.add_argument("--color_prob", type=float, default=0.3, help="Probability to jitter colors")
     parser.add_argument("--color_jitter", type=int, default=40, help="Color jitter range (0-255)")
+    parser.add_argument(
+        "--canvas_padding",
+        type=int,
+        default=2,
+        help="Padding (in pixels) added to canvas size",
+    )
 
     args = parser.parse_args()
 
@@ -423,7 +464,7 @@ def main():
     if not json_files:
         raise ValueError("No JSON files found to augment.")
 
-    for path in json_files:
+    for path in tqdm(json_files):
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         base = safe_basename(path, args.input_dir)
