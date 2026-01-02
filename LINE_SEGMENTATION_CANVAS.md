@@ -26,12 +26,12 @@ Use the augmentation script to create new canvas JSONs by:
 - Jittering colors
 
 ```bash
-uv run python scripts/augment_canvas_data.py \
+uv run python -m scripts.augment_canvas_data \
     --input_dir data/raw_canvas \
     --output_dir data/raw_canvas_aug \
     --num_aug 3 \
-    --preserve_table_size \
-    --fill_empty_text
+    --fill_empty_text \
+    --show_all_borders
 ```
 
 This script only modifies JSON. If you rely on real images, re-render or use the fallback renderer in the next step.
@@ -53,8 +53,8 @@ uv run python -m scripts.prepare_line_dataset \
     --output_dir data/line_dataset \
     --padding 5 \
     --split 0.8 0.1 0.1 \
-    --seed 42 \
-    --show_all_borders True
+    --seed 42 
+    # --show_all_borders True
 ```
 
 ### Without Split (single output directory)
@@ -151,6 +151,7 @@ uv run python train.py \
     --task line \
     --config_file configs/train_line.json \
     --output_ch 2 \
+    --batch_size 4 \
     --resume trace_wtw.pth
 ```
 

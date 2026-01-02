@@ -347,6 +347,24 @@ def augment_table(item, rng, args):
                 maybe_jitter_colors(cell["style"], rng, args.color_prob, args.color_jitter)
         props["cellData"] = cell_data
 
+    if args.show_all_borders:
+        cell_data = props.get("cellData", {}) or {}
+        hidden_cells = props.get("hiddenCells", {}) or {}
+        for r in range(rows):
+            for c in range(cols):
+                key = f"{r}-{c}"
+                if hidden_cells.get(key):
+                    continue
+                cell = cell_data.get(key, {}) or {}
+                cell_style = cell.get("cellStyle", {}) or {}
+                cell_style["borderTopWidth"] = 1
+                cell_style["borderBottomWidth"] = 1
+                cell_style["borderLeftWidth"] = 1
+                cell_style["borderRightWidth"] = 1
+                cell["cellStyle"] = cell_style
+                cell_data[key] = cell
+        props["cellData"] = cell_data
+
     item["properties"] = props
 
 
@@ -379,9 +397,16 @@ def augment_canvas(canvas_data, rng, args):
         col_sizes = build_sizes(props.get("columnWidths", {}), cols, total_w)
         table_w = sum(col_sizes) if col_sizes else float(total_w or 0.0)
         table_h = sum(row_sizes) if row_sizes else float(total_h or 0.0)
+        padding = max(0, int(args.canvas_padding))
+        table_w_padded = table_w + padding
+        table_h_padded = table_h + padding
+        props["width"] = table_w_padded
+        props["height"] = table_h_padded
+        item["width"] = table_w_padded
+        item["height"] = table_h_padded
 
-        max_x = max(max_x, table_x + table_w)
-        max_y = max(max_y, table_y + table_h)
+        max_x = max(max_x, table_x + table_w_padded)
+        max_y = max(max_y, table_y + table_h_padded)
 
     if max_x > 0 or max_y > 0:
         padding = max(0, int(args.canvas_padding))
@@ -429,8 +454,8 @@ def main():
 
     parser.add_argument("--merge_prob", type=float, default=0.2, help="Probability to attempt merges")
     parser.add_argument("--max_merges_per_table", type=int, default=3, help="Max merges per table")
-    parser.add_argument("--max_rowspan", type=int, default=3, help="Max rowspan for merges")
-    parser.add_argument("--max_colspan", type=int, default=3, help="Max colspan for merges")
+    parser.add_argument("--max_rowspan", type=int, default=5, help="Max rowspan for merges")
+    parser.add_argument("--max_colspan", type=int, default=5, help="Max colspan for merges")
     parser.add_argument("--reset_merges", action="store_true", help="Clear existing merges before augmenting")
 
     parser.add_argument("--text_prob", type=float, default=0.3, help="Probability to mutate cell text")
@@ -449,8 +474,13 @@ def main():
     parser.add_argument(
         "--canvas_padding",
         type=int,
-        default=2,
+        default=5,
         help="Padding (in pixels) added to canvas size",
+    )
+    parser.add_argument(
+        "--show_all_borders",
+        action="store_true",
+        help="Set all cell border widths to 1 after augmentation",
     )
 
     args = parser.parse_args()
