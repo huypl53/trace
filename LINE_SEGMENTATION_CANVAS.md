@@ -48,12 +48,13 @@ Use the `prepare_line_dataset.py` script to:
 ### Basic Usage (with train/val/test split)
 
 ```bash
-uv run python scripts/prepare_line_dataset.py \
+uv run python -m scripts.prepare_line_dataset \
     --input_dir data/raw_canvas \
     --output_dir data/line_dataset \
     --padding 5 \
     --split 0.8 0.1 0.1 \
-    --seed 42
+    --seed 42 \
+    --show_all_borders True
 ```
 
 ### Without Split (single output directory)
@@ -76,6 +77,7 @@ uv run python scripts/prepare_line_dataset.py \
 | `--split` | 0.8 0.1 0.1 | Train/val/test split ratios |
 | `--seed` | 42 | Random seed for reproducible splits |
 | `--no_split` | False | Don't split, output all to single 'all' directory |
+| `--show_all_borders` | True | Draw all borders regardless of border width visibility |
 
 ### Output Structure
 

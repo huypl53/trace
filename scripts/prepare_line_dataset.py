@@ -29,16 +29,154 @@ Usage:
 """
 
 import argparse
+import copy
 import json
 import os
 import random
-import shutil
 from pathlib import Path
+from tqdm import tqdm
 
 import cv2
 import numpy as np
 
 from parsers.canvas_parser import extract_single_table_data
+
+
+def _get_table_dim(props, item, key):
+    value = props.get(key)
+    if value is None:
+        return item.get(key)
+    return value
+
+
+def _build_sizes(size_map, count, total):
+    if count <= 0:
+        return []
+    size_map = size_map or {}
+    if total is None:
+        total = sum(float(v) for v in size_map.values()) if size_map else 0.0
+    default = (total / count) if total else 0.0
+    sizes = []
+    for i in range(count):
+        key = str(i)
+        if key in size_map:
+            sizes.append(float(size_map[key]))
+        else:
+            sizes.append(default)
+    return sizes
+
+
+def _to_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _get_item_bounds(item):
+    props = item.get("properties", {}) or {}
+    x = _to_float(item.get("x"))
+    y = _to_float(item.get("y"))
+    w = _to_float(_get_table_dim(props, item, "width"))
+    h = _to_float(_get_table_dim(props, item, "height"))
+    if x is None or y is None or w is None or h is None:
+        return None
+    x1 = x + w
+    y1 = y + h
+    return x, y, x1, y1
+
+
+def _collect_overlap_cuts(table_bounds, blocker_bounds, min_overlap_ratio=0.8):
+    tx0, ty0, tx1, ty1 = table_bounds
+    table_w = max(0.0, tx1 - tx0)
+    table_h = max(0.0, ty1 - ty0)
+    left_cut = right_cut = top_cut = bottom_cut = 0.0
+    for bounds in blocker_bounds:
+        ox0, oy0, ox1, oy1 = bounds
+        if ox0 <= tx0 and oy0 <= ty0 and ox1 >= tx1 and oy1 >= ty1:
+            continue
+        overlap_x = max(0.0, min(tx1, ox1) - max(tx0, ox0))
+        overlap_y = max(0.0, min(ty1, oy1) - max(ty0, oy0))
+        if overlap_x <= 0.0 or overlap_y <= 0.0:
+            continue
+        if ox0 <= tx0 < ox1 and overlap_y >= table_h * min_overlap_ratio:
+            left_cut = max(left_cut, min(tx1, ox1) - tx0)
+        if ox0 < tx1 <= ox1 and overlap_y >= table_h * min_overlap_ratio:
+            right_cut = max(right_cut, tx1 - max(tx0, ox0))
+        if oy0 <= ty0 < oy1 and overlap_x >= table_w * min_overlap_ratio:
+            top_cut = max(top_cut, min(ty1, oy1) - ty0)
+        if oy0 < ty1 <= oy1 and overlap_x >= table_w * min_overlap_ratio:
+            bottom_cut = max(bottom_cut, ty1 - max(ty0, oy0))
+    return left_cut, right_cut, top_cut, bottom_cut
+
+
+def _apply_table_edge_cuts(table_item, blockers, min_edge_size=1.0):
+    bounds = _get_item_bounds(table_item)
+    if bounds is None:
+        return table_item
+    left_cut, right_cut, top_cut, bottom_cut = _collect_overlap_cuts(bounds, blockers)
+    if left_cut <= 0 and right_cut <= 0 and top_cut <= 0 and bottom_cut <= 0:
+        return table_item
+
+    item = copy.deepcopy(table_item)
+    props = item.get("properties", {}) or {}
+    rows = int(props.get("rows", 0))
+    cols = int(props.get("columns", 0))
+    table_x = _to_float(item.get("x", 0)) or 0.0
+    table_y = _to_float(item.get("y", 0)) or 0.0
+    table_w = _to_float(_get_table_dim(props, item, "width"))
+    table_h = _to_float(_get_table_dim(props, item, "height"))
+
+    if cols > 0 and table_w is not None and (left_cut > 0 or right_cut > 0):
+        col_widths = _build_sizes(props.get("columnWidths", {}), cols, table_w)
+        if col_widths:
+            if left_cut > 0:
+                cut = min(left_cut, max(0.0, col_widths[0] - min_edge_size))
+                col_widths[0] -= cut
+                table_x += cut
+                table_w -= cut
+            if right_cut > 0:
+                cut = min(right_cut, max(0.0, col_widths[-1] - min_edge_size))
+                col_widths[-1] -= cut
+                table_w -= cut
+            props["columnWidths"] = {str(i): w for i, w in enumerate(col_widths)}
+    elif table_w is not None and (left_cut > 0 or right_cut > 0):
+        cut_left = min(left_cut, max(0.0, table_w - min_edge_size))
+        cut_right = min(right_cut, max(0.0, table_w - cut_left - min_edge_size))
+        table_x += cut_left
+        table_w -= (cut_left + cut_right)
+
+    if rows > 0 and table_h is not None and (top_cut > 0 or bottom_cut > 0):
+        row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
+        if row_heights:
+            if top_cut > 0:
+                cut = min(top_cut, max(0.0, row_heights[0] - min_edge_size))
+                row_heights[0] -= cut
+                table_y += cut
+                table_h -= cut
+            if bottom_cut > 0:
+                cut = min(bottom_cut, max(0.0, row_heights[-1] - min_edge_size))
+                row_heights[-1] -= cut
+                table_h -= cut
+            props["rowHeights"] = {str(i): h for i, h in enumerate(row_heights)}
+    elif table_h is not None and (top_cut > 0 or bottom_cut > 0):
+        cut_top = min(top_cut, max(0.0, table_h - min_edge_size))
+        cut_bottom = min(bottom_cut, max(0.0, table_h - cut_top - min_edge_size))
+        table_y += cut_top
+        table_h -= (cut_top + cut_bottom)
+
+    item["x"] = table_x
+    item["y"] = table_y
+    if "width" in item:
+        item["width"] = table_w
+    if "height" in item:
+        item["height"] = table_h
+    if table_w is not None:
+        props["width"] = table_w
+    if table_h is not None:
+        props["height"] = table_h
+    item["properties"] = props
+    return item
 
 
 
@@ -151,7 +289,7 @@ def adjust_lines_to_crop(lines_h, lines_v, offset):
     return adjusted
 
 
-def process_canvas_file(json_path, output_dir, padding=5):
+def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True):
     """Process a single canvas JSON file, generating separate output for each table.
 
     Args:
@@ -167,6 +305,14 @@ def process_canvas_file(json_path, output_dir, padding=5):
 
     items = canvas_data.get("items", [])
     tables = [item for item in items if item.get("type") == "table"]
+    blockers = []
+    for item in items:
+        item_type = item.get("type")
+        if item_type == "table" or item_type == "highlight":
+            continue
+        bounds = _get_item_bounds(item)
+        if bounds is not None:
+            blockers.append(bounds)
 
     if not tables:
         print(f"Warning: No tables found in {json_path}")
@@ -202,9 +348,12 @@ def process_canvas_file(json_path, output_dir, padding=5):
     base_name = os.path.splitext(os.path.basename(json_path))[0]
     generated = []
 
+    # print(os.path.basename(json_path))
     for idx, table_item in enumerate(tables):
         # Extract table data
-        table_data = extract_single_table_data(table_item)
+        adjusted_item = _apply_table_edge_cuts(table_item, blockers)
+
+        table_data = extract_single_table_data(adjusted_item, show_all_borders=show_all_borders)
 
         if not table_data["lines_h"] and not table_data["lines_v"]:
             continue
@@ -289,6 +438,12 @@ def main():
         action="store_true",
         help="Don't split data, process all to single 'all' directory",
     )
+    parser.add_argument(
+        "--show_all_borders",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Draw all table borders regardless of border width visibility",
+    )
     args = parser.parse_args()
 
     # Validate split ratios
@@ -327,8 +482,13 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
         split_count = 0
-        for json_path in files:
-            generated = process_canvas_file(json_path, output_dir, args.padding)
+        for json_path in tqdm(files):
+            generated = process_canvas_file(
+                json_path,
+                output_dir,
+                args.padding,
+                show_all_borders=args.show_all_borders,
+            )
             split_count += len(generated)
 
         print(

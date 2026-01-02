@@ -50,71 +50,7 @@ def _round_point(x, y):
     return int(round(x)), int(round(y))
 
 
-def extract_table_lines(canvas_data):
-    lines_h = []
-    lines_v = []
-    items = canvas_data.get("items", [])
-    for item in items:
-        if item.get("type") != "table":
-            continue
-        props = item.get("properties", {})
-        rows = int(props.get("rows", 0))
-        cols = int(props.get("columns", 0))
-        table_x = float(item.get("x", 0))
-        table_y = float(item.get("y", 0))
-        table_w = _get_table_dim(props, item, "width")
-        table_h = _get_table_dim(props, item, "height")
-        table_w = float(table_w) if table_w is not None else None
-        table_h = float(table_h) if table_h is not None else None
-
-        row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
-        col_widths = _build_sizes(props.get("columnWidths", {}), cols, table_w)
-        row_offsets = [0.0]
-        for h in row_heights:
-            row_offsets.append(row_offsets[-1] + h)
-        col_offsets = [0.0]
-        for w in col_widths:
-            col_offsets.append(col_offsets[-1] + w)
-
-        cell_data = props.get("cellData", {}) or {}
-        merged_cells = props.get("mergedCells", {}) or {}
-        hidden_cells = props.get("hiddenCells", {}) or {}
-
-        for r in range(rows):
-            for c in range(cols):
-                key = f"{r}-{c}"
-                if hidden_cells.get(key):
-                    continue
-                merged = merged_cells.get(key, {})
-                rowspan = int(merged.get("rowspan", 1))
-                colspan = int(merged.get("colspan", 1))
-
-                x0 = table_x + col_offsets[c]
-                x1 = table_x + col_offsets[min(c + colspan, len(col_offsets) - 1)]
-                y0 = table_y + row_offsets[r]
-                y1 = table_y + row_offsets[min(r + rowspan, len(row_offsets) - 1)]
-
-                cell_style = {}
-                if key in cell_data:
-                    cell_style = cell_data[key].get("cellStyle", {}) or {}
-
-                if _border_visible(cell_style, "borderTopWidth"):
-                    thickness = _border_thickness(cell_style, "borderTopWidth")
-                    lines_h.append((_round_point(x0, y0), _round_point(x1, y0), thickness))
-                if _border_visible(cell_style, "borderBottomWidth"):
-                    thickness = _border_thickness(cell_style, "borderBottomWidth")
-                    lines_h.append((_round_point(x0, y1), _round_point(x1, y1), thickness))
-                if _border_visible(cell_style, "borderLeftWidth"):
-                    thickness = _border_thickness(cell_style, "borderLeftWidth")
-                    lines_v.append((_round_point(x0, y0), _round_point(x0, y1), thickness))
-                if _border_visible(cell_style, "borderRightWidth"):
-                    thickness = _border_thickness(cell_style, "borderRightWidth")
-                    lines_v.append((_round_point(x1, y0), _round_point(x1, y1), thickness))
-
-    return lines_h, lines_v
-
-
-def extract_single_table_data(item):
+def extract_single_table_data(item, show_all_borders=False):
     """Extract table bounds, lines, and cell boxes from a table item."""
     props = item.get("properties", {})
     rows = int(props.get("rows", 0))
@@ -182,17 +118,17 @@ def extract_single_table_data(item):
                 }
             )
 
-            if _border_visible(cell_style, "borderTopWidth"):
-                thickness = _border_thickness(cell_style, "borderTopWidth")
+            if show_all_borders or _border_visible(cell_style, "borderTopWidth"):
+                thickness = 1 if show_all_borders else _border_thickness(cell_style, "borderTopWidth")
                 lines_h.append((_round_point(x0, y0), _round_point(x1, y0), thickness))
-            if _border_visible(cell_style, "borderBottomWidth"):
-                thickness = _border_thickness(cell_style, "borderBottomWidth")
+            if show_all_borders or _border_visible(cell_style, "borderBottomWidth"):
+                thickness = 1 if show_all_borders else _border_thickness(cell_style, "borderBottomWidth")
                 lines_h.append((_round_point(x0, y1), _round_point(x1, y1), thickness))
-            if _border_visible(cell_style, "borderLeftWidth"):
-                thickness = _border_thickness(cell_style, "borderLeftWidth")
+            if show_all_borders or _border_visible(cell_style, "borderLeftWidth"):
+                thickness = 1 if show_all_borders else _border_thickness(cell_style, "borderLeftWidth")
                 lines_v.append((_round_point(x0, y0), _round_point(x0, y1), thickness))
-            if _border_visible(cell_style, "borderRightWidth"):
-                thickness = _border_thickness(cell_style, "borderRightWidth")
+            if show_all_borders or _border_visible(cell_style, "borderRightWidth"):
+                thickness = 1 if show_all_borders else _border_thickness(cell_style, "borderRightWidth")
                 lines_v.append((_round_point(x1, y0), _round_point(x1, y1), thickness))
 
     return {"bounds": bounds, "lines_h": lines_h, "lines_v": lines_v, "cells": cells}
