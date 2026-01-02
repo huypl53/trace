@@ -110,8 +110,12 @@ def infer_image(net, image, args):
     v_map_resized = cv2.resize(heatmap[:, :, 1], (resized_w, resized_h), interpolation=cv2.INTER_LINEAR)
 
     orig_h, orig_w = image.shape[:2]
-    h_map = cv2.resize(h_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
-    v_map = cv2.resize(v_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+    if args.resize_map:
+        h_map = cv2.resize(h_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+        v_map = cv2.resize(v_map_resized, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+    else:
+        h_map = h_map_resized
+        v_map = v_map_resized
 
     h_bin = (h_map_resized >= args.threshold_h).astype(np.uint8) * 255
     v_bin = (v_map_resized >= args.threshold_v).astype(np.uint8) * 255
@@ -140,6 +144,7 @@ def main():
     parser.add_argument("--max_line_gap", type=int, default=10, help="HoughLinesP maximum line gap")
     parser.add_argument("--straighten", default=True, type=lambda v: v.lower() in ("1", "true", "yes", "y"))
     parser.add_argument("--save_heatmap", action="store_true", help="Save heatmap debug images")
+    parser.add_argument("--resize_map", action="store_true", help="Resize heatmaps back to original size")
     parser.add_argument("--use_compare", action="store_true", help="save final mask along with the input image to compare")
     parser.add_argument("--cuda", default=True, type=lambda v: v.lower() in ("1", "true", "yes", "y"))
     args = parser.parse_args()
@@ -181,10 +186,10 @@ def main():
             heat_h = np.clip(h_map * 255, 0, 255).astype(np.uint8)
             heat_v = np.clip(v_map * 255, 0, 255).astype(np.uint8)
             combined = np.maximum(heat_h, heat_v)
+            cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_combined.png"), combined)
             if not args.use_compare:
                 cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_h.png"), heat_h)
                 cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_v.png"), heat_v)
-                cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_combined.png"), combined)
             else:
                 resized_combined = cv2.resize(combined, (image.shape[:2][::-1]))
                 if len(resized_combined.shape) == 2:
