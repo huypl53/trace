@@ -9,6 +9,7 @@ import numpy as np
 import torch
 
 import file_utils
+from tqdm import tqdm
 import imgproc
 from model import TraceModel
 
@@ -139,6 +140,7 @@ def main():
     parser.add_argument("--max_line_gap", type=int, default=10, help="HoughLinesP maximum line gap")
     parser.add_argument("--straighten", default=True, type=lambda v: v.lower() in ("1", "true", "yes", "y"))
     parser.add_argument("--save_heatmap", action="store_true", help="Save heatmap debug images")
+    parser.add_argument("--use_compare", action="store_true", help="save final mask along with the input image to compare")
     parser.add_argument("--cuda", default=True, type=lambda v: v.lower() in ("1", "true", "yes", "y"))
     args = parser.parse_args()
 
@@ -153,7 +155,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     net = load_model(args)
 
-    for image_path in image_list:
+    for image_path in tqdm(image_list):
         image = imgproc.loadImage(image_path)
         orig_h, orig_w = image.shape[:2]
         resized, h_map, v_map, raw_h, raw_v = infer_image(net, image, args)
@@ -171,17 +173,25 @@ def main():
 
         base = os.path.splitext(os.path.basename(image_path))[0]
         out_path = os.path.join(args.output_dir, f"{base}.json")
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump({"filename": os.path.basename(image_path), "lines": lines}, f, ensure_ascii=False)
+        if not args.save_heatmap:
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump({"filename": os.path.basename(image_path), "lines": lines}, f, ensure_ascii=False)
 
         if args.save_heatmap:
             heat_h = np.clip(h_map * 255, 0, 255).astype(np.uint8)
             heat_v = np.clip(v_map * 255, 0, 255).astype(np.uint8)
-            cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_h.png"), heat_h)
-            cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_v.png"), heat_v)
             combined = np.maximum(heat_h, heat_v)
-            cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_combined.png"), combined)
+            if not args.use_compare:
+                cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_h.png"), heat_h)
+                cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_v.png"), heat_v)
+                cv2.imwrite(os.path.join(args.output_dir, f"{base}_heatmap_combined.png"), combined)
+            else:
+                resized_combined = cv2.resize(combined, (image.shape[:2][::-1]))
+                if len(resized_combined.shape) == 2:
+                    resized_combined = cv2.cvtColor(resized_combined, cv2.COLOR_GRAY2BGR)
+                compared_image = np.hstack((image, resized_combined ))
 
+                cv2.imwrite(os.path.join(args.output_dir, f"{base}_combined.png"), compared_image)
     print(f"Saved predictions to {args.output_dir}")
 
 

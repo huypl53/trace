@@ -198,6 +198,25 @@ uv run python evaluation/line_eval.py \
 | `--line_thickness` | 2 | Line thickness for pixel metrics |
 | `--save_json` | None | Save results to JSON file |
 
+## 7) Compare GT vs Pred Line Labels (Visual Debug)
+
+Render overlays that show GT vs predicted lines, plus a TP/FP/FN diff layer.
+Pred coordinates are scaled from a fixed `--pred_size` (default: 1280) to the
+original image size before drawing.
+
+```bash
+uv run python scripts/compare_line_labels.py \
+    --gt_dir data/line_dataset/test \
+    --pred_dir results/predictions \
+    --image_dir data/line_dataset/test \
+    --out_dir results/compare \
+    --pred_size 1280
+```
+
+Notes:
+- If predictions are already in original image coordinates, set `--pred_size 0`.
+- If images are missing, use `--image_size W,H` to draw on a blank canvas.
+- Add `--recursive` to search nested folders (output preserves subfolders).
 ### Metrics Computed
 
 **Line-level metrics** (based on endpoint matching):
