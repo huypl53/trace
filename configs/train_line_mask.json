@@ -13,7 +13,7 @@
   "line_thickness": 3,
   "use_gaussian": true,
   "task": "line",
-  "line_data_mode": "json",
+  "line_data_mode": "mask",
   "batch_size": 8,
-  "resume": "trace_wtw.pth"
+  "resume": "trace_base.pth"
 }

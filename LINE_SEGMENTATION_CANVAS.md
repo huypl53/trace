@@ -246,7 +246,7 @@ Training command:
 uv run python train.py \
     --task line \
     --line_data_mode mask \
-    --config_file configs/train_line.json \
+    --config_file configs/train_line_mask.json \
     --data_path data \
     --train_sets line_mask_dataset \
     --output_ch 2
