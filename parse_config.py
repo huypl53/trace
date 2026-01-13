@@ -47,6 +47,8 @@ def parse_config_train(args):
                 args.scale_down = arguments.get("scale_down", args.scale_down)
             if "task" in args.__dict__:
                 args.task = arguments.get("task", args.task)
+            if "line_data_mode" in args.__dict__:
+                args.line_data_mode = arguments.get("line_data_mode", args.line_data_mode)
             if "output_ch" in args.__dict__:
                 args.output_ch = arguments.get("output_ch", args.output_ch)
             if "line_thickness" in args.__dict__:

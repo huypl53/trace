@@ -8,7 +8,7 @@ Features:
 - Use original color images (from image_path in canvas JSON) as training input
 - Crop each table using explicit width/height from table properties
 - Split data into train/val/test sets
-- Generate corresponding line JSON annotations
+- Generate line JSON annotations or line mask images
 
 The training pipeline uses:
 - INPUT: Original color image (cropped to table region)
@@ -289,7 +289,30 @@ def adjust_lines_to_crop(lines_h, lines_v, offset):
     return adjusted
 
 
-def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True):
+def draw_line_masks(lines, width, height):
+    mask_h = np.zeros((height, width), dtype=np.uint8)
+    mask_v = np.zeros((height, width), dtype=np.uint8)
+    for line in lines:
+        line_type = line.get("type")
+        points = line.get("points", [])
+        if len(points) != 2:
+            continue
+        start = tuple(map(int, points[0]))
+        end = tuple(map(int, points[1]))
+        thickness = line.get("thickness", 1)
+        try:
+            thickness = int(round(float(thickness)))
+        except (TypeError, ValueError):
+            thickness = 1
+        thickness = max(1, thickness)
+        if line_type == "horizontal":
+            cv2.line(mask_h, start, end, color=255, thickness=thickness)
+        elif line_type == "vertical":
+            cv2.line(mask_v, start, end, color=255, thickness=thickness)
+    return mask_h, mask_v
+
+
+def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True, output_mode="json"):
     """Process a single canvas JSON file, generating separate output for each table.
 
     Args:
@@ -375,15 +398,31 @@ def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True)
         else:
             out_name = base_name
 
+        if output_mode == "mask":
+            image_dir = os.path.join(output_dir, "images")
+            mask_dir = os.path.join(output_dir, "masks")
+            os.makedirs(image_dir, exist_ok=True)
+            os.makedirs(mask_dir, exist_ok=True)
+        else:
+            image_dir = output_dir
+            mask_dir = None
+
         # Save image
-        out_img_path = os.path.join(output_dir, out_name + ".png")
+        out_img_path = os.path.join(image_dir, out_name + ".png")
         cv2.imwrite(out_img_path, image)
 
-        # Save line JSON
-        out_json_path = os.path.join(output_dir, out_name + ".json")
-        output_data = {"filename": out_name + ".png", "lines": lines}
-        with open(out_json_path, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, ensure_ascii=False, indent=2)
+        if output_mode == "json":
+            # Save line JSON
+            out_json_path = os.path.join(output_dir, out_name + ".json")
+            output_data = {"filename": out_name + ".png", "lines": lines}
+            with open(out_json_path, "w", encoding="utf-8") as f:
+                json.dump(output_data, f, ensure_ascii=False, indent=2)
+        else:
+            mask_h, mask_v = draw_line_masks(lines, image.shape[1], image.shape[0])
+            out_mask_h = os.path.join(mask_dir, out_name + "_mask_h.png")
+            out_mask_v = os.path.join(mask_dir, out_name + "_mask_v.png")
+            cv2.imwrite(out_mask_h, mask_h)
+            cv2.imwrite(out_mask_v, mask_v)
 
         generated.append(out_name)
 
@@ -415,6 +454,12 @@ def main():
     )
     parser.add_argument(
         "--output_dir", required=True, help="Output directory for processed dataset"
+    )
+    parser.add_argument(
+        "--output_mode",
+        choices=["json", "mask"],
+        default="json",
+        help="Output format: json (image+json) or mask (images/masks)",
     )
     parser.add_argument(
         "--padding",
@@ -488,6 +533,7 @@ def main():
                 output_dir,
                 args.padding,
                 show_all_borders=args.show_all_borders,
+                output_mode=args.output_mode,
             )
             split_count += len(generated)
 

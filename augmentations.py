@@ -323,3 +323,15 @@ class LineAugmentation(object):
         if img.shape[0] != self.size or img.shape[1] != self.size:
             img = cv2.resize(img.astype(np.uint8), (self.size, self.size), interpolation=cv2.INTER_LINEAR)
         return img, lines
+
+
+class LineMaskAugmentation(object):
+    def __init__(self, size=512):
+        self.size = size
+
+    def __call__(self, img, masks):
+        if img.shape[0] != self.size or img.shape[1] != self.size:
+            img = cv2.resize(img.astype(np.uint8), (self.size, self.size), interpolation=cv2.INTER_LINEAR)
+            if masks is not None:
+                masks = cv2.resize(masks, (self.size, self.size), interpolation=cv2.INTER_NEAREST)
+        return img, masks

@@ -19,8 +19,8 @@ from torch.autograd import Variable
 
 import file_utils
 import imgproc
-from augmentations import LineAugmentation, TRACEAugmentation
-from loader import Line_Dataset, TRACE_Dataset
+from augmentations import LineAugmentation, LineMaskAugmentation, TRACEAugmentation
+from loader import Line_Dataset, LineMask_Dataset, TRACE_Dataset
 from loss import TRACELoss
 from model import TraceModel
 from parse_config import parse_config_train
@@ -76,6 +76,12 @@ parser.add_argument("--eval_set", default=None, type=str, help="Evaluation datas
 parser.add_argument("--freeze", action="store_true", default=False, help="Freeze basenet")
 parser.add_argument("--comment", default="write_comment_here", type=str, help="Tensorboard log comment")
 parser.add_argument("--task", default="table", choices=["table", "line"], help="Training task")
+parser.add_argument(
+    "--line_data_mode",
+    default="json",
+    choices=["json", "mask"],
+    help="Line training input format (json or mask)",
+)
 parser.add_argument("--output_ch", default=5, type=int, help="Number of output channels")
 parser.add_argument("--line_thickness", default=3, type=int, help="Line thickness for line heatmaps")
 parser.add_argument("--use_gaussian", default=True, type=str2bool, help="Apply Gaussian blur to line heatmaps")
@@ -137,18 +143,29 @@ def train():
     criterion = TRACELoss(neg_pos_ratio=3)
 
     if args.task == "line":
-        transform = LineAugmentation(args.train_size)
         print("Loading Training Dataset... {}".format(str(args.train_sets)))
-        dataset = Line_Dataset(
-            args.train_sets,
-            rootpath=args.data_path,
-            phase="train",
-            scale_down=scale_down,
-            transform=transform,
-            mixratio=args.mixratio,
-            line_thickness=args.line_thickness,
-            use_gaussian=args.use_gaussian,
-        )
+        if args.line_data_mode == "mask":
+            transform = LineMaskAugmentation(args.train_size)
+            dataset = LineMask_Dataset(
+                args.train_sets,
+                rootpath=args.data_path,
+                phase="train",
+                scale_down=scale_down,
+                transform=transform,
+                mixratio=args.mixratio,
+            )
+        else:
+            transform = LineAugmentation(args.train_size)
+            dataset = Line_Dataset(
+                args.train_sets,
+                rootpath=args.data_path,
+                phase="train",
+                scale_down=scale_down,
+                transform=transform,
+                mixratio=args.mixratio,
+                line_thickness=args.line_thickness,
+                use_gaussian=args.use_gaussian,
+            )
     else:
         transform = TRACEAugmentation(args.train_size, means)
         print("Loading Training Dataset... {}".format(str(args.train_sets)))

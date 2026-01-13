@@ -12,5 +12,6 @@
   ],
   "line_thickness": 3,
   "use_gaussian": true,
-  "task": "line"
+  "task": "line",
+  "line_data_mode": "json"
 }

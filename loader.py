@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*- #
 
 import math
+import os
 import random
 from copy import deepcopy
 
@@ -9,6 +10,7 @@ import numpy as np
 import torch
 import torch.utils.data as data
 
+import file_utils
 import imgproc
 from parsers.line_parser import ParserLine
 from parsers.xml_parser import ParserTRACE  # ours
@@ -198,6 +200,14 @@ def LineGTTransform(target, width, height, line_thickness=3, use_gaussian=True):
 
     heatmap = np.stack([heatmap_h, heatmap_v], axis=-1)
     return heatmap, weight_mask
+
+
+def normalize_mask(mask):
+    mask = mask.astype(np.float32)
+    max_val = mask.max() if mask.size > 0 else 0.0
+    if max_val > 0:
+        mask /= max_val
+    return mask
 
 
 class TRACE_Dataset(data.Dataset):
@@ -417,5 +427,149 @@ class Line_Dataset(data.Dataset):
         return (
             torch.from_numpy(img.astype(np.float32)).permute(2, 0, 1),
             torch.from_numpy(gt_image.astype(np.float32)),
+            torch.from_numpy(gt_weight.astype(np.float32)),
+        )
+
+
+class LineMask_Dataset(data.Dataset):
+    """Dataset for line segmentation training using mask images."""
+
+    def __init__(
+        self,
+        datasets,
+        rootpath,
+        scale_down=2,
+        phase="train",
+        transform=None,
+        mixratio=[1],
+        mask_suffix_h="_mask_h.png",
+        mask_suffix_v="_mask_v.png",
+    ):
+        self.rootpath = rootpath
+        self.datasets = datasets
+        self.mixratio = mixratio
+        self.scale_down = scale_down
+        self.phase = phase
+        self.transform = transform
+        self.mask_suffix_h = mask_suffix_h
+        self.mask_suffix_v = mask_suffix_v
+        self.parsers = []
+        self.dataset_size = 0
+
+        for dataset in datasets.split(","):
+            dataset = dataset.strip()
+            if not dataset:
+                continue
+            samples = self._collect_samples(dataset, phase)
+            self.dataset_size += len(samples)
+            self.parsers.append({"name": dataset, "num": len(samples), "samples": samples})
+        if self.dataset_size == 0:
+            raise ValueError("No line mask samples found for {}".format(datasets))
+        print("Dataset size of Training Sets : {:d}".format(self.dataset_size))
+
+        cv2.setNumThreads(0)  # prevent deadlock caused by conflict with pytorch
+
+    def __len__(self):
+        return self.dataset_size
+
+    def __getitem__(self, index):
+        img, gt, weight = self.pull_item(index)
+        return img, gt, weight
+
+    def _collect_samples(self, dataset, phase):
+        base_candidates = [
+            os.path.join(self.rootpath, dataset, phase),
+            os.path.join(self.rootpath, dataset),
+        ]
+        images_dir = None
+        masks_dir = None
+        for base_dir in base_candidates:
+            candidate_images = os.path.join(base_dir, "images")
+            candidate_masks = os.path.join(base_dir, "masks")
+            if os.path.isdir(candidate_images) and os.path.isdir(candidate_masks):
+                images_dir = candidate_images
+                masks_dir = candidate_masks
+                break
+        if images_dir is None or masks_dir is None:
+            raise ValueError(
+                "Expected images/ and masks/ under {}".format(" or ".join(base_candidates))
+            )
+
+        image_files = sorted(file_utils.get_image_list(images_dir))
+        samples = []
+        for img_path in image_files:
+            rel_path = os.path.relpath(img_path, images_dir)
+            stem = os.path.splitext(rel_path)[0]
+            mask_h_path = os.path.join(masks_dir, stem + self.mask_suffix_h)
+            mask_v_path = os.path.join(masks_dir, stem + self.mask_suffix_v)
+            if not os.path.exists(mask_h_path) or not os.path.exists(mask_v_path):
+                print("No mask files found for {}".format(img_path))
+                continue
+            samples.append((img_path, mask_h_path, mask_v_path))
+        if not samples:
+            raise ValueError("No mask pairs found in {}".format(images_dir))
+        return samples
+
+    def _resize_mask(self, mask, width, height):
+        if mask.shape[0] != height or mask.shape[1] != width:
+            mask = cv2.resize(mask, (width, height), interpolation=cv2.INTER_NEAREST)
+        return mask
+
+    def _downscale_mask(self, mask, width, height):
+        if mask.ndim == 2:
+            return cv2.resize(mask, (width, height), interpolation=cv2.INTER_NEAREST)
+        channels = []
+        for ch in range(mask.shape[2]):
+            channels.append(cv2.resize(mask[:, :, ch], (width, height), interpolation=cv2.INTER_NEAREST))
+        return np.stack(channels, axis=-1)
+
+    def pull_item(self, index):
+        mix_rand = random.randrange(0, sum(self.mixratio))
+        parser_ind = 0
+        parser_ind_sum = self.mixratio[0]
+        while 1:
+            if mix_rand < parser_ind_sum:
+                break
+            parser_ind += 1
+            parser_ind_sum += self.mixratio[parser_ind]
+        parser = self.parsers[parser_ind]
+
+        while 1:
+            try:
+                img_path, mask_h_path, mask_v_path = parser["samples"][
+                    random.randrange(0, parser["num"])
+                ]
+                img = imgproc.loadImage(img_path)
+                mask_h = cv2.imread(mask_h_path, cv2.IMREAD_GRAYSCALE)
+                mask_v = cv2.imread(mask_v_path, cv2.IMREAD_GRAYSCALE)
+                if mask_h is None or mask_v is None:
+                    raise ValueError("Failed to read mask for {}".format(img_path))
+                height, width, _ = img.shape
+                mask_h = self._resize_mask(mask_h, width, height)
+                mask_v = self._resize_mask(mask_v, width, height)
+                mask = np.stack([mask_h, mask_v], axis=-1)
+            except Exception as e:
+                print(e)
+                continue
+            break
+
+        if self.transform is not None:
+            img, mask = self.transform(img, mask)
+            width = height = self.transform.size
+
+        out_w = int(width / self.scale_down)
+        out_h = int(height / self.scale_down)
+        mask = self._downscale_mask(mask, out_w, out_h)
+
+        mask = mask.astype(np.float32)
+        for ch in range(mask.shape[2]):
+            mask[:, :, ch] = normalize_mask(mask[:, :, ch])
+        gt_weight = np.ones_like(mask, dtype=np.float32)
+
+        img = imgproc.normalizeMeanVariance(img)
+
+        return (
+            torch.from_numpy(img.astype(np.float32)).permute(2, 0, 1),
+            torch.from_numpy(mask.astype(np.float32)),
             torch.from_numpy(gt_weight.astype(np.float32)),
         )

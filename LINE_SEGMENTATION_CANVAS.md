@@ -52,9 +52,22 @@ uv run python -m scripts.prepare_line_dataset \
     --input_dir data/raw_canvas \
     --output_dir data/line_dataset \
     --padding 5 \
+    --output_mode json \
     --split 0.8 0.1 0.1 \
     --seed 42 
     # --show_all_borders True
+```
+
+### Mask Output (for RGB + mask training)
+
+```bash
+uv run python -m scripts.prepare_line_dataset \
+    --input_dir data/raw_canvas \
+    --output_dir data/line_mask_dataset \
+    --padding 5 \
+    --output_mode mask \
+    --split 0.8 0.1 0.1 \
+    --seed 42
 ```
 
 ### Without Split (single output directory)
@@ -78,6 +91,7 @@ uv run python scripts/prepare_line_dataset.py \
 | `--seed` | 42 | Random seed for reproducible splits |
 | `--no_split` | False | Don't split, output all to single 'all' directory |
 | `--show_all_borders` | True | Draw all borders regardless of border width visibility |
+| `--output_mode` | json | Output format: `json` (image+json) or `mask` (images/masks) |
 
 ### Output Structure
 
@@ -95,6 +109,45 @@ data/line_dataset/
 └── test/
     └── ...
 ```
+
+### Output Structure (mask mode)
+
+```
+data/line_mask_dataset/
+├── train/
+│   ├── images/
+│   │   ├── canvas_001.png
+│   │   └── ...
+│   └── masks/
+│       ├── canvas_001_mask_h.png
+│       ├── canvas_001_mask_v.png
+│       └── ...
+├── val/
+│   ├── images/
+│   └── masks/
+└── test/
+    ├── images/
+    └── masks/
+```
+
+### Tile Mask Dataset into Near-Square Patches
+
+If your data already exists as RGB images + masks, you can tile them offline into
+near-square patches (sliding window). Only the tiled outputs are saved.
+
+```bash
+uv run python -m scripts.tile_line_mask_dataset \
+    --input_dir data/line_mask_dataset \
+    --output_dir data/line_mask_dataset_tiled \
+    --tile_size 1280 \
+    --tile_stride 1024 \
+    --max_aspect_ratio 1.2
+```
+
+Notes:
+- Expects `images/` and `masks/` folders under each split (or directly under `--input_dir`).
+- Mask filenames must match `*_mask_h.png` and `*_mask_v.png`.
+- If no split folders are present, tiled outputs are written directly under `--output_dir`.
 
 **Training Pipeline:**
 - **INPUT**: Cropped color image (from original document image)
@@ -159,6 +212,45 @@ Common overrides:
 - `--line_thickness` to control line width in the heatmaps
 - `--use_gaussian` to smooth heatmaps
 - `--train_size` to set the input resize dimension
+
+## 4b) Train with RGB + Mask Images
+
+If you already have line masks, you can train directly from RGB images and two
+mask files per image (`*_mask_h.png` and `*_mask_v.png`). The loader normalizes
+mask values to `[0, 1]` using each mask's max value (safe for varying pixel
+values).
+
+Expected layout:
+
+```
+data/line_mask_dataset/
+├── train/
+│   ├── images/
+│   │   ├── sample_001.png
+│   │   └── ...
+│   └── masks/
+│       ├── sample_001_mask_h.png
+│       ├── sample_001_mask_v.png
+│       └── ...
+├── val/
+│   ├── images/
+│   └── masks/
+└── test/
+    ├── images/
+    └── masks/
+```
+
+Training command:
+
+```bash
+uv run python train.py \
+    --task line \
+    --line_data_mode mask \
+    --config_file configs/train_line.json \
+    --data_path data \
+    --train_sets line_mask_dataset \
+    --output_ch 2
+```
 
 ## 5) Run Inference (Generate Predictions)
 

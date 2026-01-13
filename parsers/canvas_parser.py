@@ -61,6 +61,10 @@ def extract_single_table_data(item, show_all_borders=False):
     table_h = _get_table_dim(props, item, "height")
     table_w = float(table_w) if table_w is not None else None
     table_h = float(table_h) if table_h is not None else None
+    item_w = item.get("width")
+    item_h = item.get("height")
+    item_w = float(item_w) if item_w is not None else None
+    item_h = float(item_h) if item_h is not None else None
 
     row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
     col_widths = _build_sizes(props.get("columnWidths", {}), cols, table_w)
@@ -72,8 +76,12 @@ def extract_single_table_data(item, show_all_borders=False):
     for w in col_widths:
         col_offsets.append(col_offsets[-1] + w)
 
-    actual_w = table_w if table_w is not None else col_offsets[-1]
-    actual_h = table_h if table_h is not None else row_offsets[-1]
+    col_total = col_offsets[-1] if col_offsets else 0.0
+    row_total = row_offsets[-1] if row_offsets else 0.0
+    candidates_w = [v for v in (table_w, item_w, col_total) if v is not None]
+    candidates_h = [v for v in (table_h, item_h, row_total) if v is not None]
+    actual_w = max(candidates_w) if candidates_w else 0.0
+    actual_h = max(candidates_h) if candidates_h else 0.0
 
     bounds = (
         int(table_x),
