@@ -34,10 +34,10 @@ import json
 import os
 import random
 from pathlib import Path
-from tqdm import tqdm
 
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 from parsers.canvas_parser import extract_single_table_data
 
@@ -144,7 +144,7 @@ def _apply_table_edge_cuts(table_item, blockers, min_edge_size=1.0):
         cut_left = min(left_cut, max(0.0, table_w - min_edge_size))
         cut_right = min(right_cut, max(0.0, table_w - cut_left - min_edge_size))
         table_x += cut_left
-        table_w -= (cut_left + cut_right)
+        table_w -= cut_left + cut_right
 
     if rows > 0 and table_h is not None and (top_cut > 0 or bottom_cut > 0):
         row_heights = _build_sizes(props.get("rowHeights", {}), rows, table_h)
@@ -163,7 +163,7 @@ def _apply_table_edge_cuts(table_item, blockers, min_edge_size=1.0):
         cut_top = min(top_cut, max(0.0, table_h - min_edge_size))
         cut_bottom = min(bottom_cut, max(0.0, table_h - cut_top - min_edge_size))
         table_y += cut_top
-        table_h -= (cut_top + cut_bottom)
+        table_h -= cut_top + cut_bottom
 
     item["x"] = table_x
     item["y"] = table_y
@@ -177,8 +177,6 @@ def _apply_table_edge_cuts(table_item, blockers, min_edge_size=1.0):
         props["height"] = table_h
     item["properties"] = props
     return item
-
-
 
 
 def crop_table_from_image(image, table_data, padding=5):
@@ -312,7 +310,9 @@ def draw_line_masks(lines, width, height):
     return mask_h, mask_v
 
 
-def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True, output_mode="json"):
+def process_canvas_file(
+    json_path, output_dir, padding=5, show_all_borders=True, output_mode="json"
+):
     """Process a single canvas JSON file, generating separate output for each table.
 
     Args:
@@ -366,7 +366,8 @@ def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True,
                 break
 
     if original_image is None:
-        print(f"Warning: Could not load image for {json_path}, using rendered fallback")
+        print(f"Warning: Could not load image for {json_path}, skip")
+        return []
 
     base_name = os.path.splitext(os.path.basename(json_path))[0]
     generated = []
@@ -376,7 +377,9 @@ def process_canvas_file(json_path, output_dir, padding=5, show_all_borders=True,
         # Extract table data
         adjusted_item = _apply_table_edge_cuts(table_item, blockers)
 
-        table_data = extract_single_table_data(adjusted_item, show_all_borders=show_all_borders)
+        table_data = extract_single_table_data(
+            adjusted_item, show_all_borders=show_all_borders
+        )
 
         if not table_data["lines_h"] and not table_data["lines_v"]:
             continue
@@ -486,7 +489,7 @@ def main():
     parser.add_argument(
         "--show_all_borders",
         action=argparse.BooleanOptionalAction,
-        default=True,
+        default=False,
         help="Draw all table borders regardless of border width visibility",
     )
     args = parser.parse_args()

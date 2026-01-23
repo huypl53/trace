@@ -24,6 +24,23 @@ Use the augmentation script to create new canvas JSONs by:
 - Randomly merging cells
 - Mutating cell text (Japanese + digits + a few ASCII chars by default)
 - Jittering colors
+- Removing borders (outer/internal) for negative examples
+- Adding background contrast without borders
+- Creating dense text and narrow columns
+
+### Basic Usage
+
+```bash
+uv run python -m scripts.augment_canvas_data \
+    --input_dir data/raw_canvas \
+    --output_dir data/raw_canvas_aug \
+    --num_aug 3 \
+    --fill_empty_text
+```
+
+### Advanced Usage (with negative example augmentations)
+
+To help the model avoid false positives (detecting borders where none exist):
 
 ```bash
 uv run python -m scripts.augment_canvas_data \
@@ -31,11 +48,122 @@ uv run python -m scripts.augment_canvas_data \
     --output_dir data/raw_canvas_aug \
     --num_aug 3 \
     --fill_empty_text \
-    --show_all_borders
+    --remove_outer_borders_prob 0.3 \
+    --remove_internal_borders_prob 0.2 \
+    --bg_contrast_prob 0.2 \
+    --dense_text_prob 0.15 \
+    --narrow_col_prob 0.1
 ```
+
+### Augmentation Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--num_aug` | 1 | Number of augmented versions per input |
+| `--fill_empty_text` | False | Fill empty cells with random text |
+| `--show_all_borders` | False | Force all borders visible (width=1) |
+| `--remove_outer_borders_prob` | 0.0 | Probability to remove outer table borders |
+| `--remove_internal_borders_prob` | 0.0 | Probability to remove internal borders |
+| `--bg_contrast_prob` | 0.0 | Probability to add contrasting backgrounds without borders |
+| `--dense_text_prob` | 0.0 | Probability to add dense text filling cells |
+| `--narrow_col_prob` | 0.0 | Probability to make columns narrow (15-25px) |
+
+### Negative Example Augmentations
+
+These augmentations help train the model to avoid common false positives:
+
+| Augmentation | Addresses |
+|--------------|-----------|
+| `remove_outer_borders` | Model detecting invisible table boundaries |
+| `remove_internal_borders` | Model hallucinating borders between cells |
+| `bg_contrast` | Background color boundaries mistaken for borders |
+| `dense_text` | Large text patterns confused with borders |
+| `narrow_col` | Vertical text columns detected as vertical borders |
 
 This script only modifies JSON. If you rely on real images, re-render or use the fallback renderer in the next step.
 Point `--input_dir` in the next step to the augmented folder if you want to use the new JSONs.
+
+## 1c) Generate Synthetic Table Images from Canvas JSON
+
+Use the `draw_table_from_json.py` script to render table images directly from canvas JSON (without needing original images). This is useful for:
+- Generating training data from augmented JSON
+- Creating synthetic datasets with precise border control
+- Debugging border visibility rules
+
+### Basic Usage
+
+```bash
+uv run python -m scripts.draw_table_from_json \
+    --input_dir data/raw_canvas \
+    --output_dir data/synthetic_tables \
+    --recursive
+```
+
+### Output Structure (default: with masks and train/val/test split)
+
+```
+data/synthetic_tables/
+├── train/
+│   ├── images/
+│   │   ├── canvas_001_table.png
+│   │   └── ...
+│   └── masks/
+│       ├── canvas_001_table_mask_h.png
+│       ├── canvas_001_table_mask_v.png
+│       └── ...
+├── val/
+│   ├── images/
+│   └── masks/
+└── test/
+    ├── images/
+    └── masks/
+```
+
+### Command Line Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--input_dir` | (required) | Directory containing canvas JSON files |
+| `--output_dir` | (required) | Output directory for generated images |
+| `--recursive` | False | Process subdirectories recursively |
+| `--no_masks` | False | Disable mask generation (masks enabled by default) |
+| `--split` | 0.8 0.1 0.1 | Train/val/test split ratios |
+| `--no_split` | False | Don't split, output all to single directory |
+| `--seed` | 42 | Random seed for reproducible splits |
+| `--num_workers` | CPU count | Number of parallel workers |
+
+### Examples
+
+```bash
+# Generate with custom split
+uv run python -m scripts.draw_table_from_json \
+    --input_dir data/augmented_canvas \
+    --output_dir data/synthetic_dataset \
+    --recursive \
+    --split 0.7 0.15 0.15
+
+# Generate without split (all in one directory)
+uv run python -m scripts.draw_table_from_json \
+    --input_dir data/raw_canvas \
+    --output_dir data/all_tables \
+    --recursive \
+    --no_split
+
+# Generate images only (no masks)
+uv run python -m scripts.draw_table_from_json \
+    --input_dir data/raw_canvas \
+    --output_dir data/images_only \
+    --recursive \
+    --no_masks
+```
+
+### Key Features
+
+- **Japanese text support**: Automatically uses CJK fonts for proper rendering
+- **Border visibility**: Only draws borders when `border*Width > 0`
+- **Dashed borders**: Supports solid and dashed border styles
+- **Merged cells**: Handles rowspan/colspan correctly
+- **Multiprocessing**: Fast parallel generation
 
 ## 2) Convert Canvas JSON -> Line Dataset
 
@@ -195,6 +323,91 @@ Outputs:
 - `*_mask_v.png` (vertical lines)
 - `*_mask_preview.png` (green = horizontal, red = vertical)
 
+## 3b) Full Data Preparation Pipeline (One Command)
+
+Run the entire data preparation pipeline with a single script:
+
+```bash
+./scripts/prepare_line_data_pipeline.sh --input_dir data/raw_canvas
+```
+
+This runs all steps in sequence:
+1. **Augment** canvas JSON (layout/style/text mutations + negative examples)
+2. **Generate** synthetic table images from augmented JSON
+3. **Prepare** line dataset with masks from original images
+4. **Tile** mask dataset into near-square patches (smart tiling)
+
+### Pipeline Options
+
+```bash
+./scripts/prepare_line_data_pipeline.sh \
+    --input_dir data/raw_canvas \
+    --output_base data/line_seg_pipeline \
+    --num_aug 5 \
+    --tile_size 480 \
+    --tile_stride 360
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--input_dir` | (required) | Input directory with canvas JSON files |
+| `--output_base` | `data/line_seg_pipeline` | Base output directory |
+| `--num_aug` | 3 | Number of augmentations per input |
+| `--seed` | 42 | Random seed |
+| `--recursive` | False | Process subdirectories recursively |
+| `--split` | `0.8 0.1 0.1` | Train/val/test split ratios |
+| `--tile_size` | 480 | Tile size in pixels |
+| `--tile_stride` | 360 | Tile stride in pixels |
+
+### Augmentation Probabilities
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--remove_outer_borders_prob` | 0.3 | Remove outer table borders |
+| `--remove_internal_borders_prob` | 0.2 | Remove internal borders |
+| `--bg_contrast_prob` | 0.2 | Add contrasting backgrounds |
+| `--dense_text_prob` | 0.15 | Add dense text filling |
+| `--narrow_col_prob` | 0.1 | Make columns narrow |
+
+### Smart Tiling Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--min_line_pixels` | 100 | Skip tiles with fewer line pixels |
+| `--no_content_bbox` | False | Don't restrict tiling to content bbox |
+| `--bbox_padding` | 50 | Padding around content bbox |
+
+### Skip Steps
+
+```bash
+# Skip augmentation (use existing augmented data)
+./scripts/prepare_line_data_pipeline.sh --input_dir data/raw_canvas --skip_augment
+
+# Skip synthetic generation
+./scripts/prepare_line_data_pipeline.sh --input_dir data/raw_canvas --skip_synthetic
+
+# Skip tiling
+./scripts/prepare_line_data_pipeline.sh --input_dir data/raw_canvas --skip_tile
+```
+
+### Output Structure
+
+```
+data/line_seg_pipeline/
+├── augmented_json/           # Step 1: Augmented canvas JSONs
+├── synthetic_images/         # Step 2: Rendered table images + masks
+│   ├── train/
+│   │   ├── images/
+│   │   └── masks/
+│   ├── val/
+│   └── test/
+├── line_mask_dataset/        # Step 3: Dataset from original images
+└── synthetic_images_tiled/   # Step 4: Tiled patches
+    ├── train/
+    ├── val/
+    └── test/
+```
+
 ## 4) Train the Line Segmentation Model
 
 Use the line segmentation config and select the line task:
@@ -247,9 +460,22 @@ uv run python train.py \
     --task line \
     --line_data_mode mask \
     --config_file configs/train_line_mask.json \
-    --data_path data \
-    --train_sets line_mask_dataset \
     --output_ch 2
+```
+
+### Evaluate During Training (subprocess approach)
+
+Run the separate evaluation script to check model performance:
+
+```bash
+# Evaluate on validation set
+uv run python eval_line_mask.py \
+    --trained_model eval/ckpt_1000.pth \
+    --data_dir data/line_mask_dataset \
+    --phase val \
+    --input_size 1280
+
+# Output: {"dice": 0.85, "iou": 0.74, "precision": 0.87, "recall": 0.83, ...}
 ```
 
 ## 5) Run Inference (Generate Predictions)
@@ -262,6 +488,9 @@ uv run python line_infer.py \
     --trained_model eval/ckpt_100000.pth \
     --output_dir results/predictions \
     --input_size 1280 \
+    --save_heatmap \
+    --resize_map \
+    --use_compare \
     --threshold_h 0.3 \
     --threshold_v 0.3
 ```
@@ -292,6 +521,118 @@ uv run python evaluation/line_eval.py \
 | `--threshold` | 10 | Line matching threshold in pixels |
 | `--line_thickness` | 2 | Line thickness for pixel metrics |
 | `--save_json` | None | Save results to JSON file |
+
+## 6b) Evaluate Mask-based Predictions
+
+If your model outputs prediction masks directly (not JSON), use the mask evaluation script:
+
+```bash
+uv run python evaluation/mask_eval.py \
+    --gt_dir data/line_mask_dataset/test \
+    --pred_dir results/predictions \
+    --threshold 0.5 \
+    --save_json results/mask_metrics.json
+```
+
+### Finding Optimal Threshold
+
+Sweep thresholds to find the best binarization threshold:
+
+```bash
+uv run python evaluation/mask_eval.py \
+    --gt_dir data/line_mask_dataset/test \
+    --pred_dir results/predictions \
+    --sweep_threshold
+```
+
+### Evaluation Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--gt_dir` | (required) | Ground truth directory (with masks/ subdirectory) |
+| `--pred_dir` | (required) | Predictions directory |
+| `--threshold` | 0.5 | Binarization threshold for predictions (0-1) |
+| `--sweep_threshold` | False | Sweep thresholds 0.1-0.9 to find optimal |
+| `--mask_suffix_h` | `_mask_h.png` | Horizontal mask suffix |
+| `--mask_suffix_v` | `_mask_v.png` | Vertical mask suffix |
+| `--save_json` | None | Save results to JSON file |
+
+### Metrics Computed
+
+| Metric | Formula | Description |
+|--------|---------|-------------|
+| **IoU** | TP / (TP + FP + FN) | Intersection over Union (Jaccard Index) |
+| **Dice** | 2·TP / (2·TP + FP + FN) | Dice coefficient (same as F1) |
+| **Precision** | TP / (TP + FP) | What fraction of predictions are correct |
+| **Recall** | TP / (TP + FN) | What fraction of GT is detected |
+| **F1** | 2·P·R / (P + R) | Harmonic mean of precision and recall |
+
+### Worst Case Analysis
+
+Find and visualize the worst performing samples to debug model issues:
+
+```bash
+# Print 10 worst cases sorted by IoU
+uv run python evaluation/mask_eval.py \
+    --gt_dir data/line_mask_dataset/test \
+    --pred_dir results/predictions \
+    --threshold 0.5 \
+    --show_worst 10
+
+# Save visualizations of worst cases
+uv run python evaluation/mask_eval.py \
+    --gt_dir data/line_mask_dataset/test \
+    --pred_dir results/predictions \
+    --threshold 0.5 \
+    --show_worst 20 \
+    --save_worst results/worst_cases \
+    --sort_by iou \
+    --sort_channel all
+```
+
+### Worst Case Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--show_worst` | 0 | Print N worst cases (0=disabled) |
+| `--save_worst` | None | Directory to save worst case visualizations |
+| `--sort_by` | iou | Metric to sort by (iou, dice, precision, recall) |
+| `--sort_channel` | all | Channel for sorting (all, h=horizontal, v=vertical) |
+
+### Visualization Output
+
+Each worst case visualization shows 4 panels side-by-side:
+1. **Original**: The input image
+2. **GT**: Ground truth mask (green=horizontal, red=vertical)
+3. **Pred**: Predicted mask (green=horizontal, red=vertical)
+4. **Diff**: Error visualization (green=TP, red=FN missed, blue=FP false alarm)
+
+### Example Output
+
+```
+============================================================
+MASK-BASED LINE SEGMENTATION EVALUATION
+============================================================
+Evaluated: 50 image pairs
+
+COMBINED:
+  IoU:       0.7234
+  Dice:      0.8395
+  Precision: 0.8512
+  Recall:    0.8281
+  F1:        0.8395
+  (TP=125,432, FP=21,876, FN=25,891)
+
+HORIZONTAL:
+  IoU:       0.7456
+  Dice:      0.8543
+  ...
+
+VERTICAL:
+  IoU:       0.6987
+  Dice:      0.8229
+  ...
+```
 
 ## 7) Compare GT vs Pred Line Labels (Visual Debug)
 

@@ -17,8 +17,8 @@ import math
 import os
 import random
 import string
-from tqdm import tqdm
 
+from tqdm import tqdm
 
 DIGITS = string.digits
 ASCII_POOL = string.ascii_letters
@@ -70,9 +70,13 @@ def random_japanese_char(rng):
     return chr(rng.randint(start, end))
 
 
-def random_text(rng, min_len=1, max_len=8, jp_ratio=0.7, digit_ratio=0.2, ascii_ratio=0.1):
+def random_text(
+    rng, min_len=1, max_len=8, jp_ratio=0.7, digit_ratio=0.2, ascii_ratio=0.1
+):
     length = rng.randint(min_len, max_len)
-    jp_ratio, digit_ratio, ascii_ratio = normalize_weights([jp_ratio, digit_ratio, ascii_ratio])
+    jp_ratio, digit_ratio, ascii_ratio = normalize_weights(
+        [jp_ratio, digit_ratio, ascii_ratio]
+    )
     chars = []
     for _ in range(length):
         roll = rng.random()
@@ -193,7 +197,17 @@ def build_occupancy(rows, cols, merged_cells, hidden_cells):
     return occ
 
 
-def add_random_merges(rows, cols, merged_cells, hidden_cells, rng, merge_prob, max_merges, max_rowspan, max_colspan):
+def add_random_merges(
+    rows,
+    cols,
+    merged_cells,
+    hidden_cells,
+    rng,
+    merge_prob,
+    max_merges,
+    max_rowspan,
+    max_colspan,
+):
     occ = build_occupancy(rows, cols, merged_cells, hidden_cells)
     merges_added = 0
     attempts = rows * cols * 3 if rows and cols else 0
@@ -242,6 +256,185 @@ def maybe_jitter_colors(target, rng, prob, jitter):
         if key == "color" or key.endswith("Color"):
             if rng.random() < prob:
                 target[key] = jitter_color(value, rng, jitter)
+
+
+def remove_outer_borders(rows, cols, cell_data, hidden_cells, rng, prob):
+    """Remove outer table borders (top row top, bottom row bottom, etc.)
+
+    This helps train models to not assume table boundaries are always visible.
+    """
+    if rng.random() > prob:
+        return
+
+    for c in range(cols):
+        # Remove top border of first row
+        key = f"0-{c}"
+        if not hidden_cells.get(key):
+            cell = cell_data.setdefault(key, {})
+            style = cell.setdefault("cellStyle", {})
+            style["borderTopWidth"] = 0
+
+        # Remove bottom border of last row
+        key = f"{rows-1}-{c}"
+        if not hidden_cells.get(key):
+            cell = cell_data.setdefault(key, {})
+            style = cell.setdefault("cellStyle", {})
+            style["borderBottomWidth"] = 0
+
+    for r in range(rows):
+        # Remove left border of first column
+        key = f"{r}-0"
+        if not hidden_cells.get(key):
+            cell = cell_data.setdefault(key, {})
+            style = cell.setdefault("cellStyle", {})
+            style["borderLeftWidth"] = 0
+
+        # Remove right border of last column
+        key = f"{r}-{cols-1}"
+        if not hidden_cells.get(key):
+            cell = cell_data.setdefault(key, {})
+            style = cell.setdefault("cellStyle", {})
+            style["borderRightWidth"] = 0
+
+
+def remove_random_borders(rows, cols, cell_data, hidden_cells, rng, prob):
+    """Randomly remove internal borders between cells.
+
+    This creates cases where adjacent cells have no border between them.
+    """
+    for r in range(rows):
+        for c in range(cols):
+            key = f"{r}-{c}"
+            if hidden_cells.get(key):
+                continue
+            cell = cell_data.setdefault(key, {})
+            style = cell.setdefault("cellStyle", {})
+
+            # Randomly remove each border
+            for border in ["Top", "Bottom", "Left", "Right"]:
+                if rng.random() < prob:
+                    style[f"border{border}Width"] = 0
+
+
+# Default background colors for contrast augmentation
+DEFAULT_BG_COLORS = [
+    "#ffffff",  # white
+    "#f0f0f0",  # light gray
+    "#e8f7f0",  # light green
+    "#f0f0e8",  # light yellow
+    "#e8e8f7",  # light blue
+    "#f7e8e8",  # light red
+    "#f5f5dc",  # beige
+    "#e0ffff",  # light cyan
+]
+
+
+def add_bg_contrast_without_border(rows, cols, cell_data, hidden_cells, rng, prob, colors=None):
+    """Add contrasting backgrounds to adjacent cells without shared borders.
+
+    This helps train models to not confuse color boundaries with borders.
+    """
+    if rng.random() > prob:
+        return
+
+    if colors is None:
+        colors = DEFAULT_BG_COLORS
+
+    if len(colors) < 2:
+        return
+
+    # Pick random adjacent cell pairs (horizontal)
+    num_pairs = max(1, rows * cols // 4)
+    for _ in range(num_pairs):
+        if cols < 2:
+            break
+        r = rng.randrange(rows)
+        c = rng.randrange(cols - 1)
+        key1, key2 = f"{r}-{c}", f"{r}-{c+1}"
+
+        if hidden_cells.get(key1) or hidden_cells.get(key2):
+            continue
+
+        # Set different backgrounds
+        cell1 = cell_data.setdefault(key1, {})
+        cell2 = cell_data.setdefault(key2, {})
+        style1 = cell1.setdefault("cellStyle", {})
+        style2 = cell2.setdefault("cellStyle", {})
+
+        bg1, bg2 = rng.sample(colors, 2)
+        style1["backgroundColor"] = bg1
+        style2["backgroundColor"] = bg2
+
+        # Remove shared border
+        style1["borderRightWidth"] = 0
+        style2["borderLeftWidth"] = 0
+
+    # Pick random adjacent cell pairs (vertical)
+    for _ in range(num_pairs):
+        if rows < 2:
+            break
+        r = rng.randrange(rows - 1)
+        c = rng.randrange(cols)
+        key1, key2 = f"{r}-{c}", f"{r+1}-{c}"
+
+        if hidden_cells.get(key1) or hidden_cells.get(key2):
+            continue
+
+        # Set different backgrounds
+        cell1 = cell_data.setdefault(key1, {})
+        cell2 = cell_data.setdefault(key2, {})
+        style1 = cell1.setdefault("cellStyle", {})
+        style2 = cell2.setdefault("cellStyle", {})
+
+        bg1, bg2 = rng.sample(colors, 2)
+        style1["backgroundColor"] = bg1
+        style2["backgroundColor"] = bg2
+
+        # Remove shared border
+        style1["borderBottomWidth"] = 0
+        style2["borderTopWidth"] = 0
+
+
+def add_dense_text(rows, cols, cell_data, row_heights, col_widths, hidden_cells, rng, prob):
+    """Add dense text that fills most of the cell.
+
+    This helps train models to not confuse text patterns with borders.
+    """
+    for r in range(rows):
+        for c in range(cols):
+            if rng.random() > prob:
+                continue
+
+            key = f"{r}-{c}"
+            if hidden_cells.get(key):
+                continue
+
+            cell_h = row_heights.get(str(r), 20)
+            cell_w = col_widths.get(str(c), 100)
+
+            # Calculate how many chars to fill the cell
+            font_size = max(8, min(int(cell_h) - 2, 14))
+            char_width = font_size * 0.6
+            chars_fit = max(1, int(cell_w / char_width))
+
+            cell = cell_data.setdefault(key, {})
+            cell["value"] = random_text(rng, max(1, chars_fit - 1), chars_fit)
+            style = cell.setdefault("cellStyle", {})
+            style["fontSize"] = font_size
+            style["paddingLeft"] = 1
+            style["paddingRight"] = 1
+            style["paddingTop"] = 1
+            style["paddingBottom"] = 1
+
+
+def add_narrow_columns(cols, col_widths, rng, prob, min_width=15, max_width=25):
+    """Make some columns very narrow (mimics vertical text columns).
+
+    This helps train models to not confuse narrow text columns with vertical lines.
+    """
+    for c in range(cols):
+        if rng.random() < prob:
+            col_widths[str(c)] = rng.randint(min_width, max_width)
 
 
 def augment_table(item, rng, args):
@@ -337,14 +530,20 @@ def augment_table(item, rng, args):
 
     if args.color_prob > 0:
         maybe_jitter_colors(props, rng, args.color_prob, args.color_jitter)
-        maybe_jitter_colors(props.get("cellBorders", {}), rng, args.color_prob, args.color_jitter)
+        maybe_jitter_colors(
+            props.get("cellBorders", {}), rng, args.color_prob, args.color_jitter
+        )
 
         cell_data = props.get("cellData", {}) or {}
         for cell in cell_data.values():
             if "cellStyle" in cell:
-                maybe_jitter_colors(cell["cellStyle"], rng, args.color_prob, args.color_jitter)
+                maybe_jitter_colors(
+                    cell["cellStyle"], rng, args.color_prob, args.color_jitter
+                )
             if "style" in cell:
-                maybe_jitter_colors(cell["style"], rng, args.color_prob, args.color_jitter)
+                maybe_jitter_colors(
+                    cell["style"], rng, args.color_prob, args.color_jitter
+                )
         props["cellData"] = cell_data
 
     if args.show_all_borders:
@@ -365,6 +564,34 @@ def augment_table(item, rng, args):
                 cell_data[key] = cell
         props["cellData"] = cell_data
 
+    # New augmentations for negative examples (model confusion cases)
+    cell_data = props.get("cellData", {}) or {}
+    hidden_cells = props.get("hiddenCells", {}) or {}
+    row_heights = props.get("rowHeights", {})
+    col_widths = props.get("columnWidths", {})
+
+    # Remove outer table borders
+    if getattr(args, "remove_outer_borders_prob", 0) > 0:
+        remove_outer_borders(rows, cols, cell_data, hidden_cells, rng, args.remove_outer_borders_prob)
+
+    # Remove random internal borders
+    if getattr(args, "remove_internal_borders_prob", 0) > 0:
+        remove_random_borders(rows, cols, cell_data, hidden_cells, rng, args.remove_internal_borders_prob)
+
+    # Add background contrast without borders
+    if getattr(args, "bg_contrast_prob", 0) > 0:
+        add_bg_contrast_without_border(rows, cols, cell_data, hidden_cells, rng, args.bg_contrast_prob)
+
+    # Add dense text in cells
+    if getattr(args, "dense_text_prob", 0) > 0:
+        add_dense_text(rows, cols, cell_data, row_heights, col_widths, hidden_cells, rng, args.dense_text_prob)
+
+    # Add narrow columns
+    if getattr(args, "narrow_col_prob", 0) > 0:
+        add_narrow_columns(cols, col_widths, rng, args.narrow_col_prob)
+        props["columnWidths"] = col_widths
+
+    props["cellData"] = cell_data
     item["properties"] = props
 
 
@@ -439,38 +666,119 @@ def safe_basename(path, input_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Augment canvas JSON data")
-    parser.add_argument("--input_dir", required=True, help="Input directory or JSON file")
-    parser.add_argument("--output_dir", required=True, help="Output directory for augmented JSONs")
-    parser.add_argument("--num_aug", type=int, default=3, help="Number of augmentations per input")
+    parser.add_argument(
+        "--input_dir", required=True, help="Input directory or JSON file"
+    )
+    parser.add_argument(
+        "--output_dir", required=True, help="Output directory for augmented JSONs"
+    )
+    parser.add_argument(
+        "--num_aug", type=int, default=3, help="Number of augmentations per input"
+    )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--recursive", action="store_true", help="Process subdirectories")
+    parser.add_argument(
+        "--recursive", action="store_true", help="Process subdirectories"
+    )
 
-    parser.add_argument("--size_prob", type=float, default=0.8, help="Probability to change row/col sizes")
-    parser.add_argument("--row_scale_min", type=float, default=0.7, help="Row height scale min")
-    parser.add_argument("--row_scale_max", type=float, default=1.3, help="Row height scale max")
-    parser.add_argument("--col_scale_min", type=float, default=0.7, help="Column width scale min")
-    parser.add_argument("--col_scale_max", type=float, default=1.3, help="Column width scale max")
-    parser.add_argument("--preserve_table_size", action="store_true", help="Keep total width/height constant")
+    parser.add_argument(
+        "--size_prob",
+        type=float,
+        default=0.8,
+        help="Probability to change row/col sizes",
+    )
+    parser.add_argument(
+        "--row_scale_min", type=float, default=0.7, help="Row height scale min"
+    )
+    parser.add_argument(
+        "--row_scale_max", type=float, default=1.3, help="Row height scale max"
+    )
+    parser.add_argument(
+        "--col_scale_min", type=float, default=0.7, help="Column width scale min"
+    )
+    parser.add_argument(
+        "--col_scale_max", type=float, default=1.3, help="Column width scale max"
+    )
+    parser.add_argument(
+        "--preserve_table_size",
+        action="store_true",
+        help="Keep total width/height constant",
+    )
 
-    parser.add_argument("--merge_prob", type=float, default=0.2, help="Probability to attempt merges")
-    parser.add_argument("--max_merges_per_table", type=int, default=3, help="Max merges per table")
-    parser.add_argument("--max_rowspan", type=int, default=5, help="Max rowspan for merges")
-    parser.add_argument("--max_colspan", type=int, default=5, help="Max colspan for merges")
-    parser.add_argument("--reset_merges", action="store_true", help="Clear existing merges before augmenting")
+    parser.add_argument(
+        "--merge_prob", type=float, default=0.2, help="Probability to attempt merges"
+    )
+    parser.add_argument(
+        "--max_merges_per_table", type=int, default=3, help="Max merges per table"
+    )
+    parser.add_argument(
+        "--max_rowspan", type=int, default=5, help="Max rowspan for merges"
+    )
+    parser.add_argument(
+        "--max_colspan", type=int, default=5, help="Max colspan for merges"
+    )
+    parser.add_argument(
+        "--reset_merges",
+        action="store_true",
+        help="Clear existing merges before augmenting",
+    )
 
-    parser.add_argument("--text_prob", type=float, default=0.3, help="Probability to mutate cell text")
-    parser.add_argument("--text_replace_prob", type=float, default=0.2, help="Probability to replace text entirely")
-    parser.add_argument("--text_append_prob", type=float, default=0.2, help="Probability to append random text")
-    parser.add_argument("--text_truncate_prob", type=float, default=0.1, help="Probability to truncate text")
-    parser.add_argument("--text_char_prob", type=float, default=0.3, help="Per-char mutation probability")
-    parser.add_argument("--text_max_len", type=int, default=12, help="Max text length after mutation")
-    parser.add_argument("--fill_empty_text", action="store_true", help="Fill empty cells with random text")
-    parser.add_argument("--text_jp_ratio", type=float, default=0.7, help="Ratio of Japanese chars in text")
-    parser.add_argument("--text_digit_ratio", type=float, default=0.2, help="Ratio of digits in text")
-    parser.add_argument("--text_ascii_ratio", type=float, default=0.1, help="Ratio of ASCII chars in text")
+    parser.add_argument(
+        "--text_prob", type=float, default=0.3, help="Probability to mutate cell text"
+    )
+    parser.add_argument(
+        "--text_replace_prob",
+        type=float,
+        default=0.2,
+        help="Probability to replace text entirely",
+    )
+    parser.add_argument(
+        "--text_append_prob",
+        type=float,
+        default=0.2,
+        help="Probability to append random text",
+    )
+    parser.add_argument(
+        "--text_truncate_prob",
+        type=float,
+        default=0.1,
+        help="Probability to truncate text",
+    )
+    parser.add_argument(
+        "--text_char_prob",
+        type=float,
+        default=0.3,
+        help="Per-char mutation probability",
+    )
+    parser.add_argument(
+        "--text_max_len", type=int, default=12, help="Max text length after mutation"
+    )
+    parser.add_argument(
+        "--fill_empty_text",
+        action="store_true",
+        help="Fill empty cells with random text",
+    )
+    parser.add_argument(
+        "--text_jp_ratio",
+        type=float,
+        default=0.7,
+        help="Ratio of Japanese chars in text",
+    )
+    parser.add_argument(
+        "--text_digit_ratio", type=float, default=0.2, help="Ratio of digits in text"
+    )
+    parser.add_argument(
+        "--text_ascii_ratio",
+        type=float,
+        default=0.1,
+        help="Ratio of ASCII chars in text",
+    )
 
-    parser.add_argument("--color_prob", type=float, default=0.3, help="Probability to jitter colors")
-    parser.add_argument("--color_jitter", type=int, default=40, help="Color jitter range (0-255)")
+    parser.add_argument(
+        "--color_prob", type=float, default=0.3, help="Probability to jitter colors"
+    )
+    parser.add_argument(
+        "--color_jitter", type=int, default=40, help="Color jitter range (0-255)"
+    )
     parser.add_argument(
         "--canvas_padding",
         type=int,
@@ -479,8 +787,41 @@ def main():
     )
     parser.add_argument(
         "--show_all_borders",
+        default=False,
         action="store_true",
         help="Set all cell border widths to 1 after augmentation",
+    )
+
+    # Negative example augmentations (to reduce model confusion)
+    parser.add_argument(
+        "--remove_outer_borders_prob",
+        type=float,
+        default=0.0,
+        help="Probability to remove outer table borders (train model not to assume boundaries)",
+    )
+    parser.add_argument(
+        "--remove_internal_borders_prob",
+        type=float,
+        default=0.0,
+        help="Probability to remove internal borders between cells",
+    )
+    parser.add_argument(
+        "--bg_contrast_prob",
+        type=float,
+        default=0.0,
+        help="Probability to add contrasting backgrounds to adjacent cells without borders",
+    )
+    parser.add_argument(
+        "--dense_text_prob",
+        type=float,
+        default=0.0,
+        help="Probability to add dense text that fills most of the cell",
+    )
+    parser.add_argument(
+        "--narrow_col_prob",
+        type=float,
+        default=0.0,
+        help="Probability to make columns very narrow (mimics vertical text columns)",
     )
 
     args = parser.parse_args()
