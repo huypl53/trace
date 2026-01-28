@@ -1,13 +1,78 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Augment canvas JSON tables by modifying layout and styles.
+Augment canvas JSON data by modifying layout, styles, and positions.
+
+Supported Item Types:
+- Tables: row/column sizes, merges, cell text, borders, colors
+- Text: content, colors, font size
+- Images: position and size (via canvas scaling)
 
 Augmentations include:
-- Random row/column size changes
+- Row/column size changes (table)
 - Random merges (rowspan/colspan)
-- Cell text mutations
-- Color jitter (table and cell colors)
+- Cell/text mutations
+- Color jitter
+- Canvas scaling and position jitter
+- Border removal (for negative examples)
+
+Usage Examples:
+
+    # Basic table augmentation
+    uv run python -m scripts.augment_canvas_data \\
+        --input_dir data/raw_canvas \\
+        --output_dir data/augmented \\
+        --num_aug 5
+
+    # With canvas size and position augmentation
+    uv run python -m scripts.augment_canvas_data \\
+        --input_dir data/raw_canvas \\
+        --output_dir data/augmented \\
+        --num_aug 5 \\
+        --canvas_scale_prob 0.5 \\
+        --canvas_scale_min 0.7 \\
+        --canvas_scale_max 1.3 \\
+        --jitter_prob 0.8 \\
+        --max_jitter 100
+
+    # With font size scaling for text items
+    uv run python -m scripts.augment_canvas_data \\
+        --input_dir data/raw_canvas \\
+        --output_dir data/augmented \\
+        --num_aug 3 \\
+        --font_scale_prob 0.5 \\
+        --font_scale_min 0.7 \\
+        --font_scale_max 1.3
+
+    # Negative examples (remove borders, add contrast)
+    uv run python -m scripts.augment_canvas_data \\
+        --input_dir data/raw_canvas \\
+        --output_dir data/augmented \\
+        --num_aug 5 \\
+        --remove_outer_borders_prob 0.3 \\
+        --remove_internal_borders_prob 0.2 \\
+        --bg_contrast_prob 0.2
+
+    # Full augmentation (all options)
+    uv run python -m scripts.augment_canvas_data \\
+        --input_dir data/raw_canvas \\
+        --output_dir data/augmented \\
+        --num_aug 10 \\
+        --recursive \\
+        --size_prob 0.8 \\
+        --row_scale_min 0.7 \\
+        --row_scale_max 1.3 \\
+        --col_scale_min 0.7 \\
+        --col_scale_max 1.3 \\
+        --merge_prob 0.2 \\
+        --text_prob 0.3 \\
+        --color_prob 0.3 \\
+        --canvas_scale_prob 0.5 \\
+        --jitter_prob 0.8 \\
+        --max_jitter 100 \\
+        --font_scale_prob 0.5 \\
+        --remove_outer_borders_prob 0.2 \\
+        --bg_contrast_prob 0.15
 """
 
 import argparse
@@ -437,6 +502,257 @@ def add_narrow_columns(cols, col_widths, rng, prob, min_width=15, max_width=25):
             col_widths[str(c)] = rng.randint(min_width, max_width)
 
 
+def reduce_rows(props, rng, min_rows, max_remove_ratio):
+    """Remove random rows from the table.
+
+    Returns the new row count after removal.
+    """
+    rows = int(props.get("rows", 0))
+    if rows <= min_rows:
+        return rows
+
+    max_remove = max(0, int(rows * max_remove_ratio))
+    max_remove = min(max_remove, rows - min_rows)
+    if max_remove <= 0:
+        return rows
+
+    num_remove = rng.randint(1, max_remove)
+
+    # Select rows to remove (avoid first row if it's a header)
+    removable = list(range(1, rows)) if rows > 1 else []
+    if len(removable) < num_remove:
+        return rows
+
+    rows_to_remove = set(rng.sample(removable, num_remove))
+    new_rows = rows - num_remove
+
+    # Rebuild row heights
+    row_heights = props.get("rowHeights", {})
+    new_row_heights = {}
+    new_idx = 0
+    for r in range(rows):
+        if r not in rows_to_remove:
+            if str(r) in row_heights:
+                new_row_heights[str(new_idx)] = row_heights[str(r)]
+            new_idx += 1
+    props["rowHeights"] = new_row_heights
+
+    # Rebuild cell data, merged cells, hidden cells
+    cols = int(props.get("columns", 0))
+    cell_data = props.get("cellData", {}) or {}
+    merged_cells = props.get("mergedCells", {}) or {}
+    hidden_cells = props.get("hiddenCells", {}) or {}
+
+    # Create row mapping (old -> new)
+    row_map = {}
+    new_idx = 0
+    for r in range(rows):
+        if r not in rows_to_remove:
+            row_map[r] = new_idx
+            new_idx += 1
+
+    # Rebuild cell data - only keep cells in rows that weren't removed
+    new_cell_data = {}
+    for key, cell in cell_data.items():
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        if r in row_map:
+            new_key = f"{row_map[r]}-{c}"
+            new_cell_data[new_key] = cell
+    props["cellData"] = new_cell_data
+
+    # Clean up merged cells - remove any that are affected by row removal
+    # A merged cell is affected if:
+    # 1. Its anchor row is removed
+    # 2. Any row in its span is removed
+    new_merged = {}
+    for key, info in merged_cells.items():
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        # Skip if anchor row is removed
+        if r not in row_map:
+            continue
+        rowspan = int(info.get("rowspan", 1))
+        colspan = int(info.get("colspan", 1))
+        # Check if any row in the span is removed
+        span_rows = set(range(r, r + rowspan))
+        if span_rows & rows_to_remove:
+            # Affected by row removal - skip this merge
+            # The cells will be regular cells now
+            continue
+        # Safe to keep the merge
+        new_merged[f"{row_map[r]}-{c}"] = info
+    props["mergedCells"] = new_merged
+
+    # Clean up hidden cells - only keep those in rows that weren't removed
+    new_hidden = {}
+    for key, hidden in hidden_cells.items():
+        if not hidden:
+            continue
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        if r in row_map:
+            new_hidden[f"{row_map[r]}-{c}"] = True
+    props["hiddenCells"] = new_hidden
+
+    props["rows"] = new_rows
+    return new_rows
+
+
+def reduce_columns(props, rng, min_cols, max_remove_ratio):
+    """Remove random columns from the table.
+
+    Returns the new column count after removal.
+    """
+    cols = int(props.get("columns", 0))
+    if cols <= min_cols:
+        return cols
+
+    max_remove = max(0, int(cols * max_remove_ratio))
+    max_remove = min(max_remove, cols - min_cols)
+    if max_remove <= 0:
+        return cols
+
+    num_remove = rng.randint(1, max_remove)
+
+    # Select columns to remove (avoid first column often used for labels)
+    removable = list(range(1, cols)) if cols > 1 else []
+    if len(removable) < num_remove:
+        return cols
+
+    cols_to_remove = set(rng.sample(removable, num_remove))
+    new_cols = cols - num_remove
+
+    # Rebuild column widths
+    col_widths = props.get("columnWidths", {})
+    new_col_widths = {}
+    new_idx = 0
+    for c in range(cols):
+        if c not in cols_to_remove:
+            if str(c) in col_widths:
+                new_col_widths[str(new_idx)] = col_widths[str(c)]
+            new_idx += 1
+    props["columnWidths"] = new_col_widths
+
+    # Create column mapping (old -> new)
+    rows = int(props.get("rows", 0))
+    col_map = {}
+    new_idx = 0
+    for c in range(cols):
+        if c not in cols_to_remove:
+            col_map[c] = new_idx
+            new_idx += 1
+
+    # Rebuild cell data - only keep cells in columns that weren't removed
+    cell_data = props.get("cellData", {}) or {}
+    new_cell_data = {}
+    for key, cell in cell_data.items():
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        if c in col_map:
+            new_key = f"{r}-{col_map[c]}"
+            new_cell_data[new_key] = cell
+    props["cellData"] = new_cell_data
+
+    # Clean up merged cells - remove any that are affected by column removal
+    # A merged cell is affected if:
+    # 1. Its anchor column is removed
+    # 2. Any column in its span is removed
+    merged_cells = props.get("mergedCells", {}) or {}
+    new_merged = {}
+    for key, info in merged_cells.items():
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        # Skip if anchor column is removed
+        if c not in col_map:
+            continue
+        colspan = int(info.get("colspan", 1))
+        rowspan = int(info.get("rowspan", 1))
+        # Check if any column in the span is removed
+        span_cols = set(range(c, c + colspan))
+        if span_cols & cols_to_remove:
+            # Affected by column removal - skip this merge
+            # The cells will be regular cells now
+            continue
+        # Safe to keep the merge
+        new_merged[f"{r}-{col_map[c]}"] = info
+    props["mergedCells"] = new_merged
+
+    # Clean up hidden cells - only keep those in columns that weren't removed
+    hidden_cells = props.get("hiddenCells", {}) or {}
+    new_hidden = {}
+    for key, hidden in hidden_cells.items():
+        if not hidden:
+            continue
+        parsed = parse_cell_key(key)
+        if parsed is None:
+            continue
+        r, c = parsed
+        if c in col_map:
+            new_hidden[f"{r}-{col_map[c]}"] = True
+    props["hiddenCells"] = new_hidden
+
+    props["columns"] = new_cols
+    return new_cols
+
+
+def scale_table_size(item, props, rng, scale_min, scale_max):
+    """Scale the entire table by a random factor.
+
+    This changes both the table dimensions and all row/column sizes proportionally.
+    """
+    scale = rng.uniform(scale_min, scale_max)
+
+    rows = int(props.get("rows", 0))
+    cols = int(props.get("columns", 0))
+
+    # Scale row heights
+    row_heights = props.get("rowHeights", {})
+    for key in row_heights:
+        row_heights[key] = max(1, int(round(float(row_heights[key]) * scale)))
+    props["rowHeights"] = row_heights
+
+    # Scale column widths
+    col_widths = props.get("columnWidths", {})
+    for key in col_widths:
+        col_widths[key] = max(1, int(round(float(col_widths[key]) * scale)))
+    props["columnWidths"] = col_widths
+
+    # Update table dimensions
+    if "width" in props:
+        props["width"] = int(round(float(props["width"]) * scale))
+    if "height" in props:
+        props["height"] = int(round(float(props["height"]) * scale))
+
+    if "width" in item:
+        item["width"] = float(item["width"]) * scale
+    if "height" in item:
+        item["height"] = float(item["height"]) * scale
+
+    # Scale cell font sizes and padding
+    cell_data = props.get("cellData", {}) or {}
+    for cell in cell_data.values():
+        cell_style = cell.get("cellStyle", {})
+        if "fontSize" in cell_style:
+            cell_style["fontSize"] = max(6, int(round(float(cell_style["fontSize"]) * scale)))
+        for pad_key in ["paddingLeft", "paddingRight", "paddingTop", "paddingBottom"]:
+            if pad_key in cell_style:
+                cell_style["paddingLeft"] = max(0, int(round(float(cell_style[pad_key]) * scale)))
+    props["cellData"] = cell_data
+
+    return scale
+
+
 def augment_table(item, rng, args):
     if item.get("type") != "table":
         return
@@ -445,6 +761,29 @@ def augment_table(item, rng, args):
     cols = int(props.get("columns", 0))
     if rows <= 0 or cols <= 0:
         return
+
+    # Reduce rows/columns first (before other augmentations)
+    if getattr(args, "reduce_rows_prob", 0) > 0 and rng.random() < args.reduce_rows_prob:
+        rows = reduce_rows(
+            props, rng,
+            getattr(args, "min_rows", 2),
+            getattr(args, "max_row_remove_ratio", 0.5)
+        )
+
+    if getattr(args, "reduce_cols_prob", 0) > 0 and rng.random() < args.reduce_cols_prob:
+        cols = reduce_columns(
+            props, rng,
+            getattr(args, "min_cols", 2),
+            getattr(args, "max_col_remove_ratio", 0.5)
+        )
+
+    # Scale entire table size
+    if getattr(args, "table_scale_prob", 0) > 0 and rng.random() < args.table_scale_prob:
+        scale_table_size(
+            item, props, rng,
+            getattr(args, "table_scale_min", 0.5),
+            getattr(args, "table_scale_max", 1.5)
+        )
 
     if rng.random() < args.size_prob:
         orig_prop_w = props.get("width")
@@ -477,16 +816,17 @@ def augment_table(item, rng, args):
         props["width"] = int(round(new_w))
         props["height"] = int(round(new_h))
 
-        if orig_item_w is not None:
-            delta_w = 0
-            if orig_prop_w is not None:
-                delta_w = float(orig_item_w) - float(orig_prop_w)
-            item["width"] = float(new_w + delta_w)
-        if orig_item_h is not None:
-            delta_h = 0
-            if orig_prop_h is not None:
-                delta_h = float(orig_item_h) - float(orig_prop_h)
-            item["height"] = float(new_h + delta_h)
+        # Always update item size to match new table dimensions
+        # Calculate any offset between item and prop dimensions (e.g., padding/borders)
+        delta_w = 0
+        delta_h = 0
+        if orig_item_w is not None and orig_prop_w is not None:
+            delta_w = float(orig_item_w) - float(orig_prop_w)
+        if orig_item_h is not None and orig_prop_h is not None:
+            delta_h = float(orig_item_h) - float(orig_prop_h)
+
+        item["width"] = float(new_w + delta_w)
+        item["height"] = float(new_h + delta_h)
 
     merged_cells = props.get("mergedCells", {}) or {}
     hidden_cells = props.get("hiddenCells", {}) or {}
@@ -511,8 +851,7 @@ def augment_table(item, rng, args):
     if args.text_prob > 0:
         cell_data = props.get("cellData", {}) or {}
         for key, cell in cell_data.items():
-            if rng.random() > args.text_prob:
-                continue
+            if rng.random() < args.text_prob:
                 cell["value"] = mutate_text(
                     cell.get("value"),
                     rng,
@@ -592,54 +931,687 @@ def augment_table(item, rng, args):
         props["columnWidths"] = col_widths
 
     props["cellData"] = cell_data
+
+    # ALWAYS sync table dimensions to match actual row/column sizes
+    # This ensures consistency even when size_prob wasn't triggered
+    # or when row/col reduction happened
+    row_heights_map = props.get("rowHeights", {})
+    col_widths_map = props.get("columnWidths", {})
+
+    # Get original table dimensions as reference (from props or item)
+    orig_table_w = props.get("width", item.get("width", 0))
+    orig_table_h = props.get("height", item.get("height", 0))
+    orig_table_w = float(orig_table_w) if orig_table_w else 0.0
+    orig_table_h = float(orig_table_h) if orig_table_h else 0.0
+
+    # Handle edge case: tables with no columns property or empty tables
+    # If columns is 0 but we have cellData, try to infer columns from it
+    if cols == 0 and cell_data:
+        max_col = 0
+        for key in cell_data.keys():
+            parsed = parse_cell_key(key)
+            if parsed:
+                max_col = max(max_col, parsed[1] + 1)
+        cols = max_col if max_col > 0 else cols
+
+    # If still no columns but we have width and rows, create columnWidths from width
+    if cols == 0 and orig_table_w > 0 and rows > 0:
+        # Infer columns from cellData or use a reasonable default
+        max_col = 0
+        for key in cell_data.keys():
+            parsed = parse_cell_key(key)
+            if parsed:
+                max_col = max(max_col, parsed[1] + 1)
+        cols = max_col if max_col > 0 else 1  # Default to 1 column if can't infer
+
+    # If rows is 0 but we have cellData, try to infer rows from it
+    if rows == 0 and cell_data:
+        max_row = 0
+        for key in cell_data.keys():
+            parsed = parse_cell_key(key)
+            if parsed:
+                max_row = max(max_row, parsed[0] + 1)
+        rows = max_row if max_row > 0 else rows
+
+    # If still no rows but we have height and columns, create rowHeights from height
+    if rows == 0 and orig_table_h > 0 and cols > 0:
+        max_row = 0
+        for key in cell_data.keys():
+            parsed = parse_cell_key(key)
+            if parsed:
+                max_row = max(max_row, parsed[0] + 1)
+        rows = max_row if max_row > 0 else 1  # Default to 1 row if can't infer
+
+    # If still no columns or rows, preserve original dimensions and skip sync
+    if cols <= 0 or rows <= 0:
+        props["width"] = int(orig_table_w) if orig_table_w > 0 else 100
+        props["height"] = int(orig_table_h) if orig_table_h > 0 else 100
+        item["width"] = props["width"]
+        item["height"] = props["height"]
+        item["properties"] = props
+        return
+
+    # Calculate default values from existing data or original table size
+    existing_row_heights = [float(v) for v in row_heights_map.values()]
+    existing_col_widths = [float(v) for v in col_widths_map.values()]
+
+    if existing_row_heights:
+        # Use average of existing row heights
+        default_row_h = sum(existing_row_heights) / len(existing_row_heights)
+    elif orig_table_h > 0:
+        # Derive from original table height
+        default_row_h = orig_table_h / rows
+    else:
+        # Fallback
+        default_row_h = 20.0
+
+    if existing_col_widths:
+        # Use average of existing column widths
+        default_col_w = sum(existing_col_widths) / len(existing_col_widths)
+    elif orig_table_w > 0:
+        # Derive from original table width
+        default_col_w = orig_table_w / cols
+    else:
+        # Fallback
+        default_col_w = 100.0
+
+    # Sum up actual row heights
+    final_h = 0
+    for i in range(rows):
+        key = str(i)
+        final_h += float(row_heights_map.get(key, default_row_h))
+
+    # Sum up actual column widths
+    final_w = 0
+    for i in range(cols):
+        key = str(i)
+        final_w += float(col_widths_map.get(key, default_col_w))
+
+    # Ensure sizes are integers
+    final_w = int(round(final_w))
+    final_h = int(round(final_h))
+
+    # Also update rowHeights/columnWidths if they were empty
+    if not row_heights_map and rows > 0:
+        props["rowHeights"] = {str(i): int(default_row_h) for i in range(rows)}
+    if not col_widths_map and cols > 0:
+        props["columnWidths"] = {str(i): int(default_col_w) for i in range(cols)}
+
+    # Sync rows/columns properties to match actual dimensions
+    props["rows"] = rows
+    props["columns"] = cols
+
+    props["width"] = final_w
+    props["height"] = final_h
+    item["width"] = float(final_w)
+    item["height"] = float(final_h)
+
     item["properties"] = props
+
+
+def get_item_bbox(item):
+    """Get bounding box (x, y, width, height) for an item."""
+    x = float(item.get("x", 0))
+    y = float(item.get("y", 0))
+    w = float(item.get("width", 0))
+    h = float(item.get("height", 0))
+
+    # For tables, also check properties for size
+    if item.get("type") == "table":
+        props = item.get("properties", {})
+        if "width" in props:
+            w = max(w, float(props["width"]))
+        if "height" in props:
+            h = max(h, float(props["height"]))
+
+    return x, y, w, h
+
+
+def bboxes_overlap(bbox1, bbox2, margin=0):
+    """Check if two bounding boxes overlap.
+
+    Args:
+        bbox1: (x, y, w, h) tuple
+        bbox2: (x, y, w, h) tuple
+        margin: extra margin to add around boxes
+    """
+    x1, y1, w1, h1 = bbox1
+    x2, y2, w2, h2 = bbox2
+
+    # Add margin
+    x1 -= margin
+    y1 -= margin
+    w1 += 2 * margin
+    h1 += 2 * margin
+
+    # Check overlap
+    if x1 + w1 <= x2 or x2 + w2 <= x1:
+        return False
+    if y1 + h1 <= y2 or y2 + h2 <= y1:
+        return False
+    return True
+
+
+def find_valid_translation(item, all_items, orig_bbox, rng, max_offset, canvas_width, canvas_height, margin=5, min_edge_padding=5):
+    """Find a valid translation offset that doesn't cause overlap.
+
+    Strategy: Try random offsets within the allowed range, check for overlaps.
+    The table can move into the space freed by size reduction.
+
+    Args:
+        item: The item to translate
+        all_items: All items in the canvas
+        orig_bbox: Original bounding box before any augmentation (x, y, w, h)
+        rng: Random number generator
+        max_offset: Maximum offset in pixels (or ratio of original size)
+        canvas_width: Canvas width limit
+        canvas_height: Canvas height limit
+        margin: Minimum margin between items
+        min_edge_padding: Minimum padding from canvas edges
+
+    Returns:
+        (dx, dy) translation offset, or (0, 0) if no valid position found
+    """
+    curr_bbox = get_item_bbox(item)
+    curr_x, curr_y, curr_w, curr_h = curr_bbox
+    orig_x, orig_y, orig_w, orig_h = orig_bbox
+
+    # Calculate how much space was freed by size reduction
+    freed_w = max(0, orig_w - curr_w)
+    freed_h = max(0, orig_h - curr_h)
+
+    # Max offset is the freed space plus some additional movement
+    max_dx = freed_w + max_offset
+    max_dy = freed_h + max_offset
+
+    # Also allow negative movement (but limited)
+    min_dx = -max_offset
+    min_dy = -max_offset
+
+    # Get bboxes of all other items
+    other_bboxes = []
+    for other in all_items:
+        if other is item:
+            continue
+        other_bboxes.append(get_item_bbox(other))
+
+    # Try random positions
+    max_attempts = 50
+    for _ in range(max_attempts):
+        dx = rng.uniform(min_dx, max_dx)
+        dy = rng.uniform(min_dy, max_dy)
+
+        new_x = curr_x + dx
+        new_y = curr_y + dy
+
+        # Check canvas bounds with min edge padding
+        if new_x < min_edge_padding or new_y < min_edge_padding:
+            continue
+        if canvas_width and new_x + curr_w > canvas_width - min_edge_padding:
+            continue
+        if canvas_height and new_y + curr_h > canvas_height - min_edge_padding:
+            continue
+
+        # Check overlap with other items
+        new_bbox = (new_x, new_y, curr_w, curr_h)
+        overlap = False
+        for other_bbox in other_bboxes:
+            if bboxes_overlap(new_bbox, other_bbox, margin):
+                overlap = True
+                break
+
+        if not overlap:
+            return dx, dy
+
+    # No valid position found, return no movement
+    return 0, 0
+
+
+def jitter_item_positions(data, rng, jitter_prob, max_jitter, min_padding=5):
+    """Randomly jitter all item positions without causing overlaps.
+
+    Args:
+        data: Canvas data with items
+        rng: Random number generator
+        jitter_prob: Probability to jitter each item
+        max_jitter: Maximum jitter in pixels
+        min_padding: Minimum padding from canvas edges
+    """
+    if jitter_prob <= 0:
+        return
+
+    canvas_width = data.get("canvasWidth", 0)
+    canvas_height = data.get("canvasHeight", 0)
+    items = data.get("items", [])
+
+    # Collect current bboxes of all items
+    current_bboxes = [get_item_bbox(item) for item in items]
+
+    for idx, item in enumerate(items):
+        if rng.random() >= jitter_prob:
+            continue
+
+        orig_bbox = current_bboxes[idx]
+        orig_x, orig_y, orig_w, orig_h = orig_bbox
+
+        # Try random positions until we find a valid one
+        max_attempts = 20
+        for _ in range(max_attempts):
+            dx = rng.uniform(-max_jitter, max_jitter)
+            dy = rng.uniform(-max_jitter, max_jitter)
+            new_x = orig_x + dx
+            new_y = orig_y + dy
+
+            # Check canvas bounds with padding
+            if new_x < min_padding or new_y < min_padding:
+                continue
+            if canvas_width > 0 and new_x + orig_w > canvas_width - min_padding:
+                continue
+            if canvas_height > 0 and new_y + orig_h > canvas_height - min_padding:
+                continue
+
+            # Check overlap with other items
+            new_bbox = (new_x, new_y, orig_w, orig_h)
+            overlap = False
+            for other_idx, other_bbox in enumerate(current_bboxes):
+                if other_idx == idx:
+                    continue
+                if bboxes_overlap(new_bbox, other_bbox, margin=0):
+                    overlap = True
+                    break
+
+            if not overlap:
+                # Valid position found
+                item["x"] = new_x
+                item["y"] = new_y
+                current_bboxes[idx] = new_bbox
+                break
+
+
+def randomize_canvas_size(data, rng, scale_prob, scale_min, scale_max):
+    """Randomly scale canvas size and adjust item positions proportionally.
+
+    Args:
+        data: Canvas data with items
+        rng: Random number generator
+        scale_prob: Probability to scale canvas
+        scale_min: Minimum scale factor
+        scale_max: Maximum scale factor
+    """
+    if scale_prob <= 0 or rng.random() > scale_prob:
+        return
+
+    orig_width = data.get("canvasWidth", 0)
+    orig_height = data.get("canvasHeight", 0)
+    if orig_width <= 0 or orig_height <= 0:
+        return
+
+    scale = rng.uniform(scale_min, scale_max)
+    new_width = int(round(orig_width * scale))
+    new_height = int(round(orig_height * scale))
+
+    # Scale all item positions and sizes
+    for item in data.get("items", []):
+        for key in ["x", "y", "width", "height"]:
+            if key in item:
+                item[key] = float(item[key]) * scale
+
+        # Also scale table properties
+        if item.get("type") == "table":
+            props = item.get("properties", {})
+            for key in ["width", "height"]:
+                if key in props:
+                    props[key] = float(props[key]) * scale
+
+            # Scale row heights and column widths
+            if "rowHeights" in props:
+                for k, v in props["rowHeights"].items():
+                    props["rowHeights"][k] = float(v) * scale
+            if "columnWidths" in props:
+                for k, v in props["columnWidths"].items():
+                    props["columnWidths"][k] = float(v) * scale
+
+            item["properties"] = props
+
+    data["canvasWidth"] = new_width
+    data["canvasHeight"] = new_height
+
+
+def translate_tables(data, orig_bboxes, rng, args):
+    """Translate tables to new positions without overlapping other items.
+
+    Args:
+        data: Canvas data with items
+        orig_bboxes: Dict mapping item id to original bbox before augmentation
+        rng: Random number generator
+        args: Command line arguments
+    """
+    translate_prob = getattr(args, "translate_prob", 0)
+    if translate_prob <= 0:
+        return
+
+    max_offset = getattr(args, "translate_max_offset", 50)
+    margin = getattr(args, "translate_margin", 5)
+    min_edge_padding = 5  # Minimum padding from canvas edges
+
+    canvas_width = data.get("canvasWidth", 0)
+    canvas_height = data.get("canvasHeight", 0)
+
+    items = data.get("items", [])
+
+    # Track current bboxes of all items (updates after each move)
+    current_bboxes = {}
+    for item in items:
+        item_id = item.get("id")
+        if item_id:
+            current_bboxes[item_id] = get_item_bbox(item)
+
+    for item in items:
+        if item.get("type") != "table":
+            continue
+
+        if rng.random() > translate_prob:
+            continue
+
+        item_id = item.get("id")
+        if not item_id:
+            continue
+
+        orig_bbox = orig_bboxes.get(item_id)
+        if orig_bbox is None:
+            # Use current bbox if original not available
+            orig_bbox = current_bboxes.get(item_id)
+        if orig_bbox is None:
+            continue
+
+        # Build list of current bboxes for other items
+        other_bboxes = []
+        for other in items:
+            if other is item:
+                continue
+            other_id = other.get("id")
+            if other_id and other_id in current_bboxes:
+                other_bboxes.append(current_bboxes[other_id])
+
+        # Find valid translation using current positions
+        curr_bbox = current_bboxes.get(item_id, get_item_bbox(item))
+        curr_x, curr_y, curr_w, curr_h = curr_bbox
+        orig_x, orig_y, orig_w, orig_h = orig_bbox
+
+        # Calculate how much space was freed by size reduction
+        freed_w = max(0, orig_w - curr_w)
+        freed_h = max(0, orig_h - curr_h)
+
+        max_dx = freed_w + max_offset
+        max_dy = freed_h + max_offset
+        min_dx = -max_offset
+        min_dy = -max_offset
+
+        # Try random positions
+        max_attempts = 50
+        for _ in range(max_attempts):
+            dx = rng.uniform(min_dx, max_dx)
+            dy = rng.uniform(min_dy, max_dy)
+            new_x = curr_x + dx
+            new_y = curr_y + dy
+
+            # Check canvas bounds with min edge padding
+            if new_x < min_edge_padding or new_y < min_edge_padding:
+                continue
+            if canvas_width and new_x + curr_w > canvas_width - min_edge_padding:
+                continue
+            if canvas_height and new_y + curr_h > canvas_height - min_edge_padding:
+                continue
+
+            # Check overlap with other items (using current positions)
+            new_bbox = (new_x, new_y, curr_w, curr_h)
+            overlap = False
+            for other_bbox in other_bboxes:
+                if bboxes_overlap(new_bbox, other_bbox, margin):
+                    overlap = True
+                    break
+
+            if not overlap:
+                # Valid position found - move the item and update tracking
+                item["x"] = new_x
+                item["y"] = new_y
+                current_bboxes[item_id] = new_bbox
+                break
+
+
+def augment_item(item, rng, args):
+    """Augment a single canvas item (table, text, image, etc.)."""
+    item_type = item.get("type")
+
+    if item_type == "table":
+        augment_table(item, rng, args)
+    elif item_type == "text":
+        augment_text_item(item, rng, args)
+    elif item_type == "image":
+        augment_image_item(item, rng, args)
+    # Add more item types as needed
+
+
+def augment_text_item(item, rng, args):
+    """Augment text item content and style."""
+    if item.get("type") != "text":
+        return
+
+    # Mutate text content
+    text_prob = getattr(args, "text_prob", 0)
+    if text_prob > 0 and rng.random() < text_prob:
+        current_text = item.get("value", "")
+        item["value"] = mutate_text(
+            current_text,
+            rng,
+            getattr(args, "text_replace_prob", 0.2),
+            getattr(args, "text_append_prob", 0.2),
+            getattr(args, "text_truncate_prob", 0.1),
+            getattr(args, "text_char_prob", 0.3),
+            getattr(args, "fill_empty_text", False),
+            getattr(args, "text_max_len", 12),
+            getattr(args, "text_jp_ratio", 0.7),
+            getattr(args, "text_digit_ratio", 0.2),
+            getattr(args, "text_ascii_ratio", 0.1),
+        )
+
+    # Jitter colors
+    color_prob = getattr(args, "color_prob", 0)
+    if color_prob > 0:
+        color_jitter = getattr(args, "color_jitter", 40)
+        for key in ["color", "backgroundColor"]:
+            if key in item and rng.random() < color_prob:
+                item[key] = jitter_color(item[key], rng, color_jitter)
+        if "style" in item:
+            maybe_jitter_colors(item["style"], rng, color_prob, color_jitter)
+
+    # Mutate font size
+    font_scale_prob = getattr(args, "font_scale_prob", 0)
+    if font_scale_prob > 0 and rng.random() < font_scale_prob:
+        scale_min = getattr(args, "font_scale_min", 0.8)
+        scale_max = getattr(args, "font_scale_max", 1.2)
+        if "fontSize" in item:
+            item["fontSize"] = max(6, int(round(item["fontSize"] * rng.uniform(scale_min, scale_max))))
+
+
+def augment_image_item(item, rng, args):
+    """Augment image item (position and size only)."""
+    # Images are binary data, so we mainly adjust position/size
+    # Size changes are handled by canvas scaling and jitter
+    pass
 
 
 def augment_canvas(canvas_data, rng, args):
     data = copy.deepcopy(canvas_data)
+
+    # First, optionally scale the entire canvas
+    canvas_scale_prob = getattr(args, "canvas_scale_prob", 0)
+    if canvas_scale_prob > 0:
+        randomize_canvas_size(
+            data,
+            rng,
+            canvas_scale_prob,
+            getattr(args, "canvas_scale_min", 0.8),
+            getattr(args, "canvas_scale_max", 1.2),
+        )
+
+    # Store original bounding boxes before augmentation (for translation)
+    orig_bboxes = {}
     for item in data.get("items", []):
-        augment_table(item, rng, args)
+        item_id = item.get("id")
+        if item_id:
+            orig_bboxes[item_id] = get_item_bbox(item)
+
+    # Apply item-specific augmentations (all item types)
+    for item in data.get("items", []):
+        augment_item(item, rng, args)
+
+    # Calculate canvas bounds from all items and ensure min padding
+    min_edge_padding = 5  # Minimum padding from canvas edges
     max_x = 0.0
     max_y = 0.0
     for item in data.get("items", []):
-        if item.get("type") != "table":
-            continue
-        props = item.get("properties", {})
-        rows = int(props.get("rows", 0))
-        cols = int(props.get("columns", 0))
-        if rows <= 0 or cols <= 0:
-            continue
-        table_x = float(item.get("x", 0))
-        table_y = float(item.get("y", 0))
-        total_w = props.get("width")
-        if total_w is None:
-            total_w = item.get("width")
-        total_h = props.get("height")
-        if total_h is None:
-            total_h = item.get("height")
-        total_w = float(total_w) if total_w is not None else None
-        total_h = float(total_h) if total_h is not None else None
+        bbox = get_item_bbox(item)
+        item_x, item_y, item_w, item_h = bbox
+        max_x = max(max_x, item_x + item_w)
+        max_y = max(max_y, item_y + item_h)
 
-        row_sizes = build_sizes(props.get("rowHeights", {}), rows, total_h)
-        col_sizes = build_sizes(props.get("columnWidths", {}), cols, total_w)
-        table_w = sum(col_sizes) if col_sizes else float(total_w or 0.0)
-        table_h = sum(row_sizes) if row_sizes else float(total_h or 0.0)
-        padding = max(0, int(args.canvas_padding))
-        table_w_padded = table_w + padding
-        table_h_padded = table_h + padding
-        props["width"] = table_w_padded
-        props["height"] = table_h_padded
-        item["width"] = table_w_padded
-        item["height"] = table_h_padded
+    # Set initial canvas size with padding on all sides
+    extra_padding = max(0, int(args.canvas_padding))
+    if max_x > 0 or max_y > 0:
+        data["canvasWidth"] = int(math.ceil(max_x + extra_padding + min_edge_padding))
+        data["canvasHeight"] = int(math.ceil(max_y + extra_padding + min_edge_padding))
 
-        max_x = max(max_x, table_x + table_w_padded)
-        max_y = max(max_y, table_y + table_h_padded)
+    # Ensure all items have minimum padding from canvas edges
+    canvas_width = data.get("canvasWidth", 0)
+    canvas_height = data.get("canvasHeight", 0)
+    for item in data.get("items", []):
+        bbox = get_item_bbox(item)
+        item_x, item_y, item_w, item_h = bbox
+        adjusted = False
+
+        # Check left/top edges
+        if item_x < min_edge_padding:
+            item["x"] = min_edge_padding
+            adjusted = True
+        if item_y < min_edge_padding:
+            item["y"] = min_edge_padding
+            adjusted = True
+
+        # Check right/bottom edges
+        if canvas_width > 0 and item_x + item_w > canvas_width - min_edge_padding:
+            item["x"] = max(min_edge_padding, canvas_width - min_edge_padding - item_w)
+            adjusted = True
+        if canvas_height > 0 and item_y + item_h > canvas_height - min_edge_padding:
+            item["y"] = max(min_edge_padding, canvas_height - min_edge_padding - item_h)
+            adjusted = True
+
+    # Apply position jitter to all items (with overlap prevention)
+    jitter_prob = getattr(args, "jitter_prob", 0)
+    max_jitter = getattr(args, "max_jitter", 50)
+    if jitter_prob > 0:
+        jitter_item_positions(data, rng, jitter_prob, max_jitter, min_edge_padding)
+
+    # Apply table translation (move tables without overlap)
+    translate_tables(data, orig_bboxes, rng, args)
+
+    # Recalculate canvas bounds after position changes (with min padding)
+    max_x = 0.0
+    max_y = 0.0
+    for item in data.get("items", []):
+        bbox = get_item_bbox(item)
+        item_x, item_y, item_w, item_h = bbox
+        max_x = max(max_x, item_x + item_w)
+        max_y = max(max_y, item_y + item_h)
 
     if max_x > 0 or max_y > 0:
-        padding = max(0, int(args.canvas_padding))
-        data["canvasWidth"] = int(math.ceil(max_x + padding))
-        data["canvasHeight"] = int(math.ceil(max_y + padding))
+        extra_padding = max(0, int(args.canvas_padding))
+        data["canvasWidth"] = int(math.ceil(max_x + extra_padding + min_edge_padding))
+        data["canvasHeight"] = int(math.ceil(max_y + extra_padding + min_edge_padding))
+
+    # Final validation: check for any overlaps and fix them
+    _fix_overlaps(data, min_edge_padding)
+
     return data
+
+
+def _fix_overlaps(data, min_padding=5, max_iterations=50):
+    """Detect and fix any overlapping items by separating them.
+
+    Args:
+        data: Canvas data with items
+        min_padding: Minimum spacing between items
+        max_iterations: Maximum iterations to resolve overlaps
+    """
+    items = data.get("items", [])
+    if not items:
+        return
+
+    canvas_width = data.get("canvasWidth", 0)
+    canvas_height = data.get("canvasHeight", 0)
+
+    for iteration in range(max_iterations):
+        overlaps_found = False
+        item_bboxes = [get_item_bbox(item) for item in items]
+
+        for i, item_a in enumerate(items):
+            bbox_a = item_bboxes[i]
+            ax, ay, aw, ah = bbox_a
+
+            for j, item_b in enumerate(items):
+                if i >= j:
+                    continue
+
+                bbox_b = item_bboxes[j]
+                if bboxes_overlap(bbox_a, bbox_b, margin=0):
+                    overlaps_found = True
+                    bx, by, bw, bh = bbox_b
+
+                    # Calculate centers
+                    center_a_x = ax + aw / 2
+                    center_a_y = ay + ah / 2
+                    center_b_x = bx + bw / 2
+                    center_b_y = by + bh / 2
+
+                    # Push items apart along the line connecting their centers
+                    dx = center_b_x - center_a_x
+                    dy = center_b_y - center_a_y
+                    dist = max(0.1, (dx**2 + dy**2)**0.5)  # Avoid division by zero
+
+                    push_dist = 2.0  # Push by 2 pixels per iteration
+                    move_x = (dx / dist) * push_dist
+                    move_y = (dy / dist) * push_dist
+
+                    # Move item A away from B
+                    new_ax = ax - move_x
+                    new_ay = ay - move_y
+                    new_ax = max(min_padding, new_ax)
+                    new_ay = max(min_padding, new_ay)
+                    if canvas_width > 0:
+                        new_ax = min(new_ax, canvas_width - min_padding - aw)
+                    if canvas_height > 0:
+                        new_ay = min(new_ay, canvas_height - min_padding - ah)
+                    item_a["x"] = new_ax
+                    item_a["y"] = new_ay
+
+                    # Move item B away from A
+                    new_bx = bx + move_x
+                    new_by = by + move_y
+                    new_bx = max(min_padding, new_bx)
+                    new_by = max(min_padding, new_by)
+                    if canvas_width > 0:
+                        new_bx = min(new_bx, canvas_width - min_padding - bw)
+                    if canvas_height > 0:
+                        new_by = min(new_by, canvas_height - min_padding - bh)
+                    item_b["x"] = new_bx
+                    item_b["y"] = new_by
+
+                    # Update cached bboxes
+                    item_bboxes[i] = (new_ax, new_ay, aw, ah)
+                    item_bboxes[j] = (new_bx, new_by, bw, bh)
+
+        if not overlaps_found:
+            break
 
 
 def list_json_files(input_path, recursive=False):
@@ -822,6 +1794,136 @@ def main():
         type=float,
         default=0.0,
         help="Probability to make columns very narrow (mimics vertical text columns)",
+    )
+
+    # Row/column reduction augmentations
+    parser.add_argument(
+        "--reduce_rows_prob",
+        type=float,
+        default=0.0,
+        help="Probability to remove random rows from table",
+    )
+    parser.add_argument(
+        "--reduce_cols_prob",
+        type=float,
+        default=0.0,
+        help="Probability to remove random columns from table",
+    )
+    parser.add_argument(
+        "--min_rows",
+        type=int,
+        default=2,
+        help="Minimum rows to keep when reducing",
+    )
+    parser.add_argument(
+        "--min_cols",
+        type=int,
+        default=2,
+        help="Minimum columns to keep when reducing",
+    )
+    parser.add_argument(
+        "--max_row_remove_ratio",
+        type=float,
+        default=0.5,
+        help="Maximum ratio of rows to remove, e.g. 0.5 means up to 50%%",
+    )
+    parser.add_argument(
+        "--max_col_remove_ratio",
+        type=float,
+        default=0.5,
+        help="Maximum ratio of columns to remove, e.g. 0.5 means up to 50%%",
+    )
+
+    # Table scaling augmentation
+    parser.add_argument(
+        "--table_scale_prob",
+        type=float,
+        default=0.0,
+        help="Probability to scale the entire table size",
+    )
+    parser.add_argument(
+        "--table_scale_min",
+        type=float,
+        default=0.5,
+        help="Minimum scale factor for table, e.g. 0.5 means 50%% of original",
+    )
+    parser.add_argument(
+        "--table_scale_max",
+        type=float,
+        default=1.5,
+        help="Maximum scale factor for table, e.g. 1.5 means 150%% of original",
+    )
+
+    # Table translation augmentation
+    parser.add_argument(
+        "--translate_prob",
+        type=float,
+        default=0.0,
+        help="Probability to translate/move table position",
+    )
+    parser.add_argument(
+        "--translate_max_offset",
+        type=float,
+        default=50,
+        help="Maximum translation offset in pixels beyond freed space",
+    )
+    parser.add_argument(
+        "--translate_margin",
+        type=float,
+        default=5,
+        help="Minimum margin between items after translation",
+    )
+
+    # Canvas size and position augmentations
+    parser.add_argument(
+        "--canvas_scale_prob",
+        type=float,
+        default=0.0,
+        help="Probability to scale the entire canvas (items are repositioned proportionally)",
+    )
+    parser.add_argument(
+        "--canvas_scale_min",
+        type=float,
+        default=0.8,
+        help="Minimum canvas scale factor (e.g., 0.8 = 80%% of original size)",
+    )
+    parser.add_argument(
+        "--canvas_scale_max",
+        type=float,
+        default=1.2,
+        help="Maximum canvas scale factor (e.g., 1.2 = 120%% of original size)",
+    )
+    parser.add_argument(
+        "--jitter_prob",
+        type=float,
+        default=0.0,
+        help="Probability to jitter each item's position",
+    )
+    parser.add_argument(
+        "--max_jitter",
+        type=float,
+        default=50,
+        help="Maximum position jitter in pixels (+/-)",
+    )
+
+    # Font size augmentation for text items
+    parser.add_argument(
+        "--font_scale_prob",
+        type=float,
+        default=0.0,
+        help="Probability to scale font size for text items",
+    )
+    parser.add_argument(
+        "--font_scale_min",
+        type=float,
+        default=0.8,
+        help="Minimum font scale factor",
+    )
+    parser.add_argument(
+        "--font_scale_max",
+        type=float,
+        default=1.2,
+        help="Maximum font scale factor",
     )
 
     args = parser.parse_args()
