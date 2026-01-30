@@ -54,25 +54,38 @@ Usage Examples:
         --bg_contrast_prob 0.2
 
     # Full augmentation (all options)
-    uv run python -m scripts.augment_canvas_data \\
-        --input_dir data/raw_canvas \\
-        --output_dir data/augmented \\
-        --num_aug 10 \\
-        --recursive \\
-        --size_prob 0.8 \\
-        --row_scale_min 0.7 \\
-        --row_scale_max 1.3 \\
-        --col_scale_min 0.7 \\
-        --col_scale_max 1.3 \\
-        --merge_prob 0.2 \\
-        --text_prob 0.3 \\
-        --color_prob 0.3 \\
-        --canvas_scale_prob 0.5 \\
-        --jitter_prob 0.8 \\
-        --max_jitter 100 \\
-        --font_scale_prob 0.5 \\
-        --remove_outer_borders_prob 0.2 \\
-        --bg_contrast_prob 0.15
+    uv run python -m scripts.augment_canvas_data \
+        --input_dir data/raw_canvas \
+        --output_dir data/augmented \
+        --prefix hard_case \
+        --num_aug 5 \
+        --recursive \
+        --size_prob 0.8 \
+        --row_scale_min 0.7 \
+        --row_scale_max 1.3 \
+        --col_scale_min 0.7 \
+        --col_scale_max 1.3 \
+        --merge_prob 0.2 \
+        --text_prob 0.3 \
+        --color_prob 0.1 \
+        --canvas_scale_prob 0.5 \
+        --jitter_prob 0.8 \
+        --max_jitter 100 \
+        --font_scale_prob 0.5 \
+        --remove_outer_borders_prob 0.2 \
+        --bg_contrast_prob 0.15 \
+        --add_labels_prob 0.8 \
+        --add_labels_prob 0.8 \
+        --label_above_prob 0.7 \
+        --label_below_prob 0.7 \
+        --label_min_padding 5 \
+        --reduce_cols_prob 0.8 \
+        --reduce_rows_prob 0.8 \
+        --min_cell_area 2 \
+        --max_row_remove_ratio 0.7 \
+        --max_col_remove_ratio 0.5 \
+
+
 """
 
 import argparse
@@ -502,12 +515,18 @@ def add_narrow_columns(cols, col_widths, rng, prob, min_width=15, max_width=25):
             col_widths[str(c)] = rng.randint(min_width, max_width)
 
 
-def reduce_rows(props, rng, min_rows, max_remove_ratio):
+def reduce_rows(props, rng, min_cell_area, max_remove_ratio):
     """Remove random rows from the table.
 
     Returns the new row count after removal.
     """
     rows = int(props.get("rows", 0))
+    cols = int(props.get("columns", 1))
+
+    # Calculate min_rows based on min_cell_area constraint: rows * cols >= min_cell_area
+    # min_rows = ceil(min_cell_area / cols)
+    min_rows = max(1, -(-min_cell_area // cols))  # Ceiling division
+
     if rows <= min_rows:
         return rows
 
@@ -536,6 +555,12 @@ def reduce_rows(props, rng, min_rows, max_remove_ratio):
                 new_row_heights[str(new_idx)] = row_heights[str(r)]
             new_idx += 1
     props["rowHeights"] = new_row_heights
+
+    # Update height to match new rowHeights sum
+    if new_row_heights:
+        new_height = sum(float(v) for v in new_row_heights.values())
+        props["height"] = int(round(new_height))
+        # Also update item height if accessible (it's passed through props reference)
 
     # Rebuild cell data, merged cells, hidden cells
     cols = int(props.get("columns", 0))
@@ -605,12 +630,18 @@ def reduce_rows(props, rng, min_rows, max_remove_ratio):
     return new_rows
 
 
-def reduce_columns(props, rng, min_cols, max_remove_ratio):
+def reduce_columns(props, rng, min_cell_area, max_remove_ratio):
     """Remove random columns from the table.
 
     Returns the new column count after removal.
     """
+    rows = int(props.get("rows", 1))
     cols = int(props.get("columns", 0))
+
+    # Calculate min_cols based on min_cell_area constraint: rows * cols >= min_cell_area
+    # min_cols = ceil(min_cell_area / rows)
+    min_cols = max(1, -(-min_cell_area // rows))  # Ceiling division
+
     if cols <= min_cols:
         return cols
 
@@ -639,6 +670,11 @@ def reduce_columns(props, rng, min_cols, max_remove_ratio):
                 new_col_widths[str(new_idx)] = col_widths[str(c)]
             new_idx += 1
     props["columnWidths"] = new_col_widths
+
+    # Update width to match new columnWidths sum
+    if new_col_widths:
+        new_width = sum(float(v) for v in new_col_widths.values())
+        props["width"] = int(round(new_width))
 
     # Create column mapping (old -> new)
     rows = int(props.get("rows", 0))
@@ -728,16 +764,27 @@ def scale_table_size(item, props, rng, scale_min, scale_max):
         col_widths[key] = max(1, int(round(float(col_widths[key]) * scale)))
     props["columnWidths"] = col_widths
 
-    # Update table dimensions
-    if "width" in props:
-        props["width"] = int(round(float(props["width"]) * scale))
-    if "height" in props:
+    # Update table dimensions from actual sums (not by scaling independently)
+    # This avoids rounding mismatches between sum of parts and total
+    if row_heights:
+        new_height = sum(float(v) for v in row_heights.values())
+        props["height"] = int(round(new_height))
+        item["height"] = float(props["height"])
+    elif "height" in props:
         props["height"] = int(round(float(props["height"]) * scale))
-
-    if "width" in item:
-        item["width"] = float(item["width"]) * scale
-    if "height" in item:
+        item["height"] = float(props["height"])
+    elif "height" in item:
         item["height"] = float(item["height"]) * scale
+
+    if col_widths:
+        new_width = sum(float(v) for v in col_widths.values())
+        props["width"] = int(round(new_width))
+        item["width"] = float(props["width"])
+    elif "width" in props:
+        props["width"] = int(round(float(props["width"]) * scale))
+        item["width"] = float(props["width"])
+    elif "width" in item:
+        item["width"] = float(item["width"]) * scale
 
     # Scale cell font sizes and padding
     cell_data = props.get("cellData", {}) or {}
@@ -746,8 +793,8 @@ def scale_table_size(item, props, rng, scale_min, scale_max):
         if "fontSize" in cell_style:
             cell_style["fontSize"] = max(6, int(round(float(cell_style["fontSize"]) * scale)))
         for pad_key in ["paddingLeft", "paddingRight", "paddingTop", "paddingBottom"]:
-            if pad_key in cell_style:
-                cell_style["paddingLeft"] = max(0, int(round(float(cell_style[pad_key]) * scale)))
+            if pad_key in cell_style and cell_style[pad_key] is not None:
+                cell_style[pad_key] = max(0, int(round(float(cell_style[pad_key]) * scale)))
     props["cellData"] = cell_data
 
     return scale
@@ -757,25 +804,114 @@ def augment_table(item, rng, args):
     if item.get("type") != "table":
         return
     props = item.get("properties", {})
+    had_row_heights = bool(props.get("rowHeights"))
+    had_col_widths = bool(props.get("columnWidths"))
     rows = int(props.get("rows", 0))
     cols = int(props.get("columns", 0))
+    if had_row_heights:
+        rows = len(props.get("rowHeights", {}))
+        props["rows"] = rows
+    if had_col_widths:
+        cols = len(props.get("columnWidths", {}))
+        props["columns"] = cols
     if rows <= 0 or cols <= 0:
+        if not props.get("rowHeights"):
+            props.pop("rows", None)
+        if not props.get("columnWidths"):
+            props.pop("columns", None)
+        item["properties"] = props
         return
 
     # Reduce rows/columns first (before other augmentations)
+    min_cell_area = getattr(args, "min_cell_area", 2)
+
     if getattr(args, "reduce_rows_prob", 0) > 0 and rng.random() < args.reduce_rows_prob:
         rows = reduce_rows(
             props, rng,
-            getattr(args, "min_rows", 2),
+            min_cell_area,
             getattr(args, "max_row_remove_ratio", 0.5)
         )
 
     if getattr(args, "reduce_cols_prob", 0) > 0 and rng.random() < args.reduce_cols_prob:
         cols = reduce_columns(
             props, rng,
-            getattr(args, "min_cols", 2),
+            min_cell_area,
             getattr(args, "max_col_remove_ratio", 0.5)
         )
+
+    # CRITICAL: Re-read rows/cols from props after reduction
+    # The reduce_* functions update props["rows"] and props["columns"] directly,
+    # but we need to sync our local variables with these updated values.
+    rows = int(props.get("rows", rows))
+    cols = int(props.get("columns", cols))
+
+    # CRITICAL: Store original table dimensions BEFORE any scaling
+    # These are used to calculate defaults if rowHeights/columnWidths are empty
+    _orig_table_w = props.get("width", item.get("width", 0))
+    _orig_table_h = props.get("height", item.get("height", 0))
+    _orig_table_w = float(_orig_table_w) if _orig_table_w else 0.0
+    _orig_table_h = float(_orig_table_h) if _orig_table_h else 0.0
+
+    # CRITICAL: After reduction, ensure rowHeights and columnWidths are populated
+    # and have entries for ALL rows/columns (not sparse)
+    # Also ensure at least 1 row and 1 column
+    row_heights = props.get("rowHeights", {})
+    col_widths = props.get("columnWidths", {})
+
+    # Determine actual row/column counts from rowHeights/columnWidths if they exist
+    # This ensures rows/columns always match the length of rowHeights/columnWidths
+    if had_row_heights:
+        if row_heights:
+            # Use length of rowHeights as source of truth
+            rows = len(row_heights)
+        # Ensure at least 1 row
+        if rows < 1:
+            rows = 1
+        # Ensure rowHeights has exactly `rows` entries
+        if len(row_heights) != rows:
+            if row_heights:
+                avg_h = sum(float(v) for v in row_heights.values()) / len(row_heights)
+            else:
+                avg_h = _orig_table_h / rows if _orig_table_h > 0 else 20.0
+            new_row_heights = {}
+            for i in range(rows):
+                key = str(i)
+                if key in row_heights:
+                    new_row_heights[key] = row_heights[key]
+                else:
+                    new_row_heights[key] = avg_h
+            props["rowHeights"] = new_row_heights
+            row_heights = new_row_heights
+        props["rows"] = rows
+
+    if had_col_widths:
+        if col_widths:
+            # Use length of columnWidths as source of truth
+            cols = len(col_widths)
+        # Ensure at least 1 column
+        if cols < 1:
+            cols = 1
+        # Ensure columnWidths has exactly `cols` entries
+        if len(col_widths) != cols:
+            if col_widths:
+                avg_w = sum(float(v) for v in col_widths.values()) / len(col_widths)
+            else:
+                avg_w = _orig_table_w / cols if _orig_table_w > 0 else 100.0
+            new_col_widths = {}
+            for i in range(cols):
+                key = str(i)
+                if key in col_widths:
+                    new_col_widths[key] = col_widths[key]
+                else:
+                    new_col_widths[key] = avg_w
+            props["columnWidths"] = new_col_widths
+            col_widths = new_col_widths
+        props["columns"] = cols
+
+    if not had_row_heights and not props.get("rowHeights"):
+        props.pop("rowHeights", None)
+    if not had_col_widths and not props.get("columnWidths"):
+        props.pop("columnWidths", None)
 
     # Scale entire table size
     if getattr(args, "table_scale_prob", 0) > 0 and rng.random() < args.table_scale_prob:
@@ -935,116 +1071,72 @@ def augment_table(item, rng, args):
     # ALWAYS sync table dimensions to match actual row/column sizes
     # This ensures consistency even when size_prob wasn't triggered
     # or when row/col reduction happened
-    row_heights_map = props.get("rowHeights", {})
-    col_widths_map = props.get("columnWidths", {})
+    row_heights_map = props.get("rowHeights", {}) or {}
+    col_widths_map = props.get("columnWidths", {}) or {}
+    has_row_heights = bool(row_heights_map)
+    has_col_widths = bool(col_widths_map)
 
     # Get original table dimensions as reference (from props or item)
-    orig_table_w = props.get("width", item.get("width", 0))
-    orig_table_h = props.get("height", item.get("height", 0))
-    orig_table_w = float(orig_table_w) if orig_table_w else 0.0
-    orig_table_h = float(orig_table_h) if orig_table_h else 0.0
+    # Use the _orig values captured earlier (before scaling) for proper defaults
+    orig_table_w = _orig_table_w
+    orig_table_h = _orig_table_h
 
-    # Handle edge case: tables with no columns property or empty tables
-    # If columns is 0 but we have cellData, try to infer columns from it
-    if cols == 0 and cell_data:
-        max_col = 0
-        for key in cell_data.keys():
-            parsed = parse_cell_key(key)
-            if parsed:
-                max_col = max(max_col, parsed[1] + 1)
-        cols = max_col if max_col > 0 else cols
-
-    # If still no columns but we have width and rows, create columnWidths from width
-    if cols == 0 and orig_table_w > 0 and rows > 0:
-        # Infer columns from cellData or use a reasonable default
-        max_col = 0
-        for key in cell_data.keys():
-            parsed = parse_cell_key(key)
-            if parsed:
-                max_col = max(max_col, parsed[1] + 1)
-        cols = max_col if max_col > 0 else 1  # Default to 1 column if can't infer
-
-    # If rows is 0 but we have cellData, try to infer rows from it
-    if rows == 0 and cell_data:
-        max_row = 0
-        for key in cell_data.keys():
-            parsed = parse_cell_key(key)
-            if parsed:
-                max_row = max(max_row, parsed[0] + 1)
-        rows = max_row if max_row > 0 else rows
-
-    # If still no rows but we have height and columns, create rowHeights from height
-    if rows == 0 and orig_table_h > 0 and cols > 0:
-        max_row = 0
-        for key in cell_data.keys():
-            parsed = parse_cell_key(key)
-            if parsed:
-                max_row = max(max_row, parsed[0] + 1)
-        rows = max_row if max_row > 0 else 1  # Default to 1 row if can't infer
-
-    # If still no columns or rows, preserve original dimensions and skip sync
-    if cols <= 0 or rows <= 0:
-        props["width"] = int(orig_table_w) if orig_table_w > 0 else 100
-        props["height"] = int(orig_table_h) if orig_table_h > 0 else 100
-        item["width"] = props["width"]
-        item["height"] = props["height"]
+    # If no explicit row/column sizes, don't force rows/columns into output
+    if not has_row_heights and not has_col_widths:
+        props.pop("rows", None)
+        props.pop("columns", None)
+        if "width" in props:
+            item["width"] = float(props["width"])
+        if "height" in props:
+            item["height"] = float(props["height"])
         item["properties"] = props
         return
 
-    # Calculate default values from existing data or original table size
-    existing_row_heights = [float(v) for v in row_heights_map.values()]
-    existing_col_widths = [float(v) for v in col_widths_map.values()]
-
-    if existing_row_heights:
-        # Use average of existing row heights
-        default_row_h = sum(existing_row_heights) / len(existing_row_heights)
-    elif orig_table_h > 0:
-        # Derive from original table height
-        default_row_h = orig_table_h / rows
+    if has_row_heights:
+        rows = len(row_heights_map)
+        # Ensure at least 1 row - if empty, create a default entry
+        if rows < 1:
+            rows = 1
+            default_h = orig_table_h if orig_table_h > 0 else 20.0
+            row_heights_map = {"0": default_h}
+            props["rowHeights"] = row_heights_map
+        props["rows"] = rows
     else:
-        # Fallback
-        default_row_h = 20.0
+        props.pop("rows", None)
 
-    if existing_col_widths:
-        # Use average of existing column widths
-        default_col_w = sum(existing_col_widths) / len(existing_col_widths)
-    elif orig_table_w > 0:
-        # Derive from original table width
-        default_col_w = orig_table_w / cols
+    if has_col_widths:
+        cols = len(col_widths_map)
+        # Ensure at least 1 column - if empty, create a default entry
+        if cols < 1:
+            cols = 1
+            default_w = orig_table_w if orig_table_w > 0 else 100.0
+            col_widths_map = {"0": default_w}
+            props["columnWidths"] = col_widths_map
+        props["columns"] = cols
     else:
-        # Fallback
-        default_col_w = 100.0
+        props.pop("columns", None)
 
-    # Sum up actual row heights
-    final_h = 0
-    for i in range(rows):
-        key = str(i)
-        final_h += float(row_heights_map.get(key, default_row_h))
+    if has_row_heights:
+        final_h = sum(float(v) for v in row_heights_map.values())
+        if final_h <= 0:
+            fallback_h = props.get("height", orig_table_h) or item.get("height", 0)
+            final_h = float(fallback_h) if fallback_h else 20.0
+        final_h = int(round(final_h))
+        props["height"] = final_h
+        item["height"] = float(final_h)
+    elif "height" in props:
+        item["height"] = float(props["height"])
 
-    # Sum up actual column widths
-    final_w = 0
-    for i in range(cols):
-        key = str(i)
-        final_w += float(col_widths_map.get(key, default_col_w))
-
-    # Ensure sizes are integers
-    final_w = int(round(final_w))
-    final_h = int(round(final_h))
-
-    # Also update rowHeights/columnWidths if they were empty
-    if not row_heights_map and rows > 0:
-        props["rowHeights"] = {str(i): int(default_row_h) for i in range(rows)}
-    if not col_widths_map and cols > 0:
-        props["columnWidths"] = {str(i): int(default_col_w) for i in range(cols)}
-
-    # Sync rows/columns properties to match actual dimensions
-    props["rows"] = rows
-    props["columns"] = cols
-
-    props["width"] = final_w
-    props["height"] = final_h
-    item["width"] = float(final_w)
-    item["height"] = float(final_h)
+    if has_col_widths:
+        final_w = sum(float(v) for v in col_widths_map.values())
+        if final_w <= 0:
+            fallback_w = props.get("width", orig_table_w) or item.get("width", 0)
+            final_w = float(fallback_w) if fallback_w else 100.0
+        final_w = int(round(final_w))
+        props["width"] = final_w
+        item["width"] = float(final_w)
+    elif "width" in props:
+        item["width"] = float(props["width"])
 
     item["properties"] = props
 
@@ -1392,6 +1484,191 @@ def augment_item(item, rng, args):
     # Add more item types as needed
 
 
+# Sample label texts that commonly appear above/below tables
+DEFAULT_LABEL_TEXTS = [
+    "表1", "表2", "表3", "Table 1", "Table 2", "Table 3",
+    "データ", "Data", "集計結果", "Summary", "一覧",
+    "List", "明細", "Details", "サマリー", "Overview",
+    "統計", "Statistics", "記録", "Records", "報告書",
+    "Report", "分析", "Analysis", "推移", "Trends",
+    "比較", "Comparison", "内訳", "Breakdown",
+]
+
+
+def create_label_item(text, x, y, width, height, rng=None):
+    """Create a label item with default properties.
+
+    Args:
+        text: Label text content
+        x, y: Position
+        width, height: Dimensions
+        rng: Random number generator for style variations
+
+    Returns:
+        Label item dictionary
+    """
+    import uuid
+
+    item = {
+        "id": str(uuid.uuid4()),
+        "type": "label",
+        "x": float(x),
+        "y": float(y),
+        "width": float(width),
+        "height": float(height),
+        "properties": {
+            "color": "#000000",
+            "fontSize": 12,
+            "fontFamily": "MS Mincho",
+            "textAlign": "left",
+            "fontWeight": "normal",
+            "backgroundColor": "transparent",
+            "borderRadius": 0.0,
+            "padding": 0.0,
+            "letterSpacing": 0.0,
+            "kerning": False,
+            "boxSizing": "border-box",
+            "width": "auto",
+            "height": "auto",
+            "type": "label",
+            "text": text,
+        },
+    }
+
+    # Add style variations
+    if rng:
+        # Random font size (10-16)
+        item["properties"]["fontSize"] = rng.randint(10, 16)
+
+        # Random bold (30% chance)
+        if rng.random() < 0.3:
+            item["properties"]["fontWeight"] = "bold"
+
+        # Random alignment (mostly left, sometimes center)
+        if rng.random() < 0.2:
+            item["properties"]["textAlign"] = "center"
+
+        # Random underline (20% chance)
+        if rng.random() < 0.2:
+            item["properties"]["textDecoration"] = "underline"
+
+        # Slight color jitter (stay dark for readability)
+        if rng.random() < 0.3:
+            base_colors = ["#000000", "#1a1a1a", "#333333", "#2c2c2c"]
+            item["properties"]["color"] = rng.choice(base_colors)
+
+    return item
+
+
+def add_surrounding_labels(data, rng, args):
+    """Add text labels above/below tables to train model to distinguish borders from text.
+
+    This addresses a common model confusion where surrounding text (captions, labels)
+    is mistaken for table borders.
+
+    Args:
+        data: Canvas data with items
+        rng: Random number generator
+        args: Command line arguments
+    """
+    add_labels_prob = getattr(args, "add_labels_prob", 0)
+    if add_labels_prob <= 0:
+        return
+
+    label_above_prob = getattr(args, "label_above_prob", 0.5)
+    label_below_prob = getattr(args, "label_below_prob", 0.5)
+    min_label_padding = getattr(args, "label_min_padding", 8)
+    max_label_padding = getattr(args, "label_max_padding", 25)
+    label_texts = getattr(args, "label_texts", None) or DEFAULT_LABEL_TEXTS
+
+    items = data.get("items", [])
+    new_items = []
+
+    # Track all existing bboxes for overlap checking
+    existing_bboxes = []
+    for item in items:
+        existing_bboxes.append(get_item_bbox(item))
+
+    canvas_width = data.get("canvasWidth", 0)
+    canvas_height = data.get("canvasHeight", 0)
+
+    for item in items:
+        if item.get("type") != "table":
+            continue
+
+        if rng.random() > add_labels_prob:
+            continue
+
+        table_bbox = get_item_bbox(item)
+        table_x, table_y, table_w, table_h = table_bbox
+
+        # Estimate label height based on font size (12-16px font + padding)
+        label_height = rng.randint(16, 24)
+        label_width = min(table_w, rng.randint(80, 200))
+
+        # Try to add label above table
+        if rng.random() < label_above_prob:
+            padding = rng.randint(min_label_padding, max_label_padding)
+            label_x = table_x + rng.uniform(0, max(0, table_w - label_width))
+            label_y = table_y - label_height - padding
+
+            # Check if position is valid (within canvas and no overlap)
+            label_bbox = (label_x, label_y, label_width, label_height)
+            valid = True
+
+            # Check canvas bounds
+            if label_y < 0:
+                valid = False
+            elif canvas_width > 0 and (label_x + label_width > canvas_width):
+                valid = False
+
+            # Check overlap with existing items
+            if valid:
+                for existing_bbox in existing_bboxes:
+                    if bboxes_overlap(label_bbox, existing_bbox, margin=2):
+                        valid = False
+                        break
+
+            if valid:
+                text = rng.choice(label_texts)
+                label_item = create_label_item(text, label_x, label_y, label_width, label_height, rng)
+                new_items.append(label_item)
+                existing_bboxes.append(label_bbox)
+
+        # Try to add label below table
+        if rng.random() < label_below_prob:
+            padding = rng.randint(min_label_padding, max_label_padding)
+            label_x = table_x + rng.uniform(0, max(0, table_w - label_width))
+            label_y = table_y + table_h + padding
+
+            # Check if position is valid
+            label_bbox = (label_x, label_y, label_width, label_height)
+            valid = True
+
+            # Check canvas bounds
+            if canvas_height > 0 and (label_y + label_height > canvas_height):
+                valid = False
+            elif canvas_width > 0 and (label_x + label_width > canvas_width):
+                valid = False
+
+            # Check overlap with existing items
+            if valid:
+                for existing_bbox in existing_bboxes:
+                    if bboxes_overlap(label_bbox, existing_bbox, margin=2):
+                        valid = False
+                        break
+
+            if valid:
+                text = rng.choice(label_texts)
+                label_item = create_label_item(text, label_x, label_y, label_width, label_height, rng)
+                new_items.append(label_item)
+                existing_bboxes.append(label_bbox)
+
+    # Add new labels to canvas
+    if new_items:
+        data["items"].extend(new_items)
+
+
 def augment_text_item(item, rng, args):
     """Augment text item content and style."""
     if item.get("type") != "text":
@@ -1531,6 +1808,23 @@ def augment_canvas(canvas_data, rng, args):
 
     # Final validation: check for any overlaps and fix them
     _fix_overlaps(data, min_edge_padding)
+
+    # Add surrounding labels to tables (helps model distinguish borders from text)
+    add_surrounding_labels(data, rng, args)
+
+    # Recalculate canvas bounds after adding labels (labels may extend bounds)
+    max_x = 0.0
+    max_y = 0.0
+    for item in data.get("items", []):
+        bbox = get_item_bbox(item)
+        item_x, item_y, item_w, item_h = bbox
+        max_x = max(max_x, item_x + item_w)
+        max_y = max(max_y, item_y + item_h)
+
+    if max_x > 0 or max_y > 0:
+        extra_padding = max(0, int(args.canvas_padding))
+        data["canvasWidth"] = int(math.ceil(max_x + extra_padding + min_edge_padding))
+        data["canvasHeight"] = int(math.ceil(max_y + extra_padding + min_edge_padding))
 
     return data
 
@@ -1810,16 +2104,10 @@ def main():
         help="Probability to remove random columns from table",
     )
     parser.add_argument(
-        "--min_rows",
+        "--min_cell_area",
         type=int,
         default=2,
-        help="Minimum rows to keep when reducing",
-    )
-    parser.add_argument(
-        "--min_cols",
-        type=int,
-        default=2,
-        help="Minimum columns to keep when reducing",
+        help="Minimum cell area (rows * cols) to keep when reducing. E.g., 2 means at least 2x1, 1x2, or larger.",
     )
     parser.add_argument(
         "--max_row_remove_ratio",
@@ -1926,6 +2214,51 @@ def main():
         help="Maximum font scale factor",
     )
 
+    # Surrounding labels augmentation (add labels above/below tables)
+    parser.add_argument(
+        "--add_labels_prob",
+        type=float,
+        default=0.0,
+        help="Probability to add text labels above/below a table (helps model distinguish borders from surrounding text)",
+    )
+    parser.add_argument(
+        "--label_above_prob",
+        type=float,
+        default=0.5,
+        help="Probability to add label above the table (when add_labels_prob triggers)",
+    )
+    parser.add_argument(
+        "--label_below_prob",
+        type=float,
+        default=0.5,
+        help="Probability to add label below the table (when add_labels_prob triggers)",
+    )
+    parser.add_argument(
+        "--label_min_padding",
+        type=int,
+        default=8,
+        help="Minimum padding (in pixels) between table and added labels",
+    )
+    parser.add_argument(
+        "--label_max_padding",
+        type=int,
+        default=25,
+        help="Maximum padding (in pixels) between table and added labels",
+    )
+    parser.add_argument(
+        "--label_texts",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Custom label texts to use (default: predefined Japanese/English labels like '表1', 'Table 1', etc.)",
+    )
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        default="",
+        help="Prefix to add to generated augmented filenames (e.g., 'close_labels_' produces 'close_labels_base_aug1.json')",
+    )
+
     args = parser.parse_args()
 
     if not os.path.exists(args.input_dir):
@@ -1944,7 +2277,7 @@ def main():
         for i in range(args.num_aug):
             aug_rng = random.Random(rng.randint(0, 2**31 - 1))
             augmented = augment_canvas(data, aug_rng, args)
-            out_name = f"{base}_aug{i + 1}.json"
+            out_name = f"{args.prefix}{base}_aug{i + 1}.json"
             out_path = os.path.join(args.output_dir, out_name)
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(augmented, f, ensure_ascii=False, indent=2)

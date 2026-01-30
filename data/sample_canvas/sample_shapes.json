@@ -1,0 +1,3640 @@
+{
+  "id": "3922",
+  "name": "Page_17_ano",
+  "canvasWidth": 934,
+  "canvasHeight": 1259,
+  "createdAt": "2025-10-14T18:55:15",
+  "updatedAt": "2026-01-13T18:02:55",
+  "image_path": "pages/DNnsapPp0HeYqcr63IMr53xOwzd43Rhuln5qXhXF.png",
+  "items": [
+    {
+      "id": "54e8e7ea-f879-4a6d-911b-7d38785f46e9",
+      "type": "label",
+      "x": 239.0022862665702,
+      "y": 54.67698289697837,
+      "width": 371.14141748810675,
+      "height": 53.17847175948992,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 26.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "center",
+        "textDecoration": "underline",
+        "fontWeight": "normal",
+        "backgroundColor": "#E8F7F0",
+        "borderWidth": 0.0,
+        "borderColor": "#646464",
+        "borderStyle": "solid",
+        "borderRadius": 0.0,
+        "padding": 4.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 200,
+        "height": 34,
+        "type": "label",
+        "text": "指示書"
+      }
+    },
+    {
+      "id": "88107c32-13cb-4f01-a087-a90671ea98e5",
+      "type": "label",
+      "x": 104.83746360042332,
+      "y": 35.022165806662215,
+      "width": 48.7469324461991,
+      "height": 19.94192690980872,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 19.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "underline",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "収集"
+      }
+    },
+    {
+      "id": "1cd0253a-f0f0-474e-b57c-95955823546b",
+      "type": "label",
+      "x": 694.6437873583371,
+      "y": 28.805005536390375,
+      "width": 121.23670043701023,
+      "height": 16.6182724248406,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "none",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "2018/07/27 10:54:54"
+      }
+    },
+    {
+      "id": "a33e7ae9-765a-4b6d-b4db-e0e11dfc6b15",
+      "type": "label",
+      "x": 865.4289760243618,
+      "y": 76.45392054787231,
+      "width": 25.297365398928978,
+      "height": 16.6182724248406,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "none",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "発行"
+      }
+    },
+    {
+      "id": "92ec3a5b-46d1-423a-b92a-1fc6f2d8b592",
+      "type": "label",
+      "x": 92.16690760046987,
+      "y": 56.55583470410049,
+      "width": 67.58097452768511,
+      "height": 16.6182724248406,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "none",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "配車状況:"
+      }
+    },
+    {
+      "id": "2e9c2594-6bb1-4cc7-b299-5029d4499c5f",
+      "type": "label",
+      "x": 138.27069417327635,
+      "y": 89.9244127895134,
+      "width": 27.966606206848866,
+      "height": 16.6182724248406,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "none",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "配車"
+      }
+    },
+    {
+      "id": "bf118941-f318-49f9-ab79-6eb10049af05",
+      "type": "table",
+      "x": 53.17847175948992,
+      "y": 117.43579180220692,
+      "width": 379.0,
+      "height": 101.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 379,
+        "height": 101,
+        "type": "table",
+        "rows": 6,
+        "columns": 4,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "002007",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000",
+              "backgroundColor": "#e8f7f0"
+            },
+            "value": "201",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderRightWidth": 0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000",
+              "backgroundColor": "#e0ffff"
+            },
+            "value": "4ｔ車",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000",
+              "backgroundColor": "#f0f0f0"
+            },
+            "value": "2138/67/",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "backgroundColor": "#f5f5dc",
+              "borderRightWidth": 0
+            },
+            "value": "644",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000",
+              "backgroundColor": "#ffffff"
+            },
+            "value": "千葉130い1234",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "backgroundColor": "#f5f5dc"
+            },
+            "value": "C背ゆッ18はヹプだ娶2",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000027",
+              "backgroundColor": "#e0ffff"
+            },
+            "value": "001013",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "5-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none"
+            },
+            "value": "權雅晃子",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false
+            },
+            "value": "運 転 者",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "入金竺",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderRightWidth": 0.0,
+              "borderRightStyle": "none"
+            },
+            "value": "車",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0.0,
+              "borderLeftStyle": "none",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "種",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#f0f0e8",
+              "kerning": false,
+              "borderBottomWidth": 0
+            },
+            "value": "作 業 日",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "right",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#261400",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0.0,
+              "borderLeftStyle": "none",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "208,000",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#e0ffff",
+              "kerning": false,
+              "borderTopWidth": 0
+            },
+            "value": "受付番号",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 39,
+          "1": 46,
+          "2": 171,
+          "3": 123
+        },
+        "rowHeights": {
+          "0": 13,
+          "1": 14,
+          "2": 13,
+          "3": 35,
+          "4": 14,
+          "5": 12
+        },
+        "mergedCells": {
+          "3-0": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "1-0": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "1-1": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "4-0": {
+            "colspan": 2,
+            "rowspan": 2
+          },
+          "4-2": {
+            "colspan": 1,
+            "rowspan": 2
+          }
+        },
+        "hiddenCells": {
+          "0-1": true,
+          "3-1": true,
+          "2-0": true,
+          "2-1": true,
+          "4-1": true,
+          "5-0": true,
+          "5-1": true,
+          "5-2": true,
+          "3-3": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "b3106792-0433-4015-856d-d6c46647f764",
+      "type": "table",
+      "x": 719.2569445136194,
+      "y": 155.6333288505695,
+      "width": 198.0,
+      "height": 107.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 198,
+        "height": 107,
+        "type": "table",
+        "rows": 6,
+        "columns": 3,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#140000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "受 付 日",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#190f00",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#030026",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "入金額",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#dcffe9",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "2018/07/27",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#08000a",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#0d0900",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "初回登録ミ",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "right",
+              "backgroundColor": "#efffff",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "種",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#130000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "2018/03/58",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "最終楆新日",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "right",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "200,000",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#210014"
+            },
+            "value": "2018/07/27",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "10:40:00",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000001",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "10:50:17",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "5-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "10:54:53"
+          },
+          "5-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#070000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "5-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "4-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "4-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000006",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "4-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "5-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#0b0c19"
+            }
+          },
+          "5-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000"
+            }
+          },
+          "5-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#002026"
+            }
+          },
+          "3-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000"
+            }
+          },
+          "3-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            }
+          },
+          "3-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "value": ""
+          }
+        },
+        "columnWidths": {
+          "0": 39,
+          "1": 42,
+          "2": 117
+        },
+        "rowHeights": {
+          "0": 13,
+          "1": 16,
+          "2": 19,
+          "3": 21,
+          "4": 21,
+          "5": 17
+        },
+        "mergedCells": {
+          "0-0": {
+            "colspan": 2,
+            "rowspan": 2
+          },
+          "4-2": {
+            "colspan": 4,
+            "rowspan": 1
+          },
+          "2-0": {
+            "colspan": 2,
+            "rowspan": 2
+          },
+          "4-0": {
+            "colspan": 2,
+            "rowspan": 2
+          }
+        },
+        "hiddenCells": {
+          "0-1": true,
+          "1-0": true,
+          "1-1": true,
+          "2-1": true,
+          "3-0": true,
+          "3-1": true,
+          "4-1": true,
+          "5-0": true,
+          "5-1": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 28
+      }
+    },
+    {
+      "id": "473fb17d-63d2-4707-ba81-cba749eed4e8",
+      "type": "table",
+      "x": 41.08699316375146,
+      "y": 349.1340518159077,
+      "width": 873.0,
+      "height": 156.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 873,
+        "height": 156,
+        "type": "table",
+        "rows": 8,
+        "columns": 7,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "backgroundColor": "#ffdae5",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#00180d",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#03001a"
+            },
+            "value": "000025",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "000025",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "株式会社銀星工業",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000"
+            },
+            "value": "千葉県市原市中野3-9-12",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            },
+            "value": "斉藤　様"
+          },
+          "5-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none"
+            },
+            "value": "312001D"
+          },
+          "6-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "エジソン"
+          },
+          "7-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "鍌ヅ5ガXぎ仔5"
+          },
+          "0-5": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "2",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-5": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000"
+            },
+            "value": "070-1234-5678"
+          },
+          "5-5": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none"
+            },
+            "value": "000002"
+          },
+          "6-5": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#130009",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "寺町工場"
+          },
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderLeftWidth": 0
+            },
+            "value": "取 引 先",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "入金額",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderRightWidth": 0.0,
+              "borderRightStyle": "none",
+              "borderLeftWidth": 0
+            },
+            "value": "業",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000f00",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0.0,
+              "borderLeftStyle": "none",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "りァモ鼠",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderTopWidth": 0
+            },
+            "value": "取引区分",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#002812",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#00030d",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#001b13",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0.0,
+              "borderRightStyle": "none",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0.0,
+              "borderRightStyle": "none",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            },
+            "value": ""
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderLeftWidth": 0
+            },
+            "value": "灾ごも所",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "value": "作業時間ザぉ",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000"
+            }
+          },
+          "2-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "center",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            }
+          },
+          "3-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "value": ""
+          },
+          "0-6": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#110000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0,
+              "borderRightStyle": "none",
+              "borderRightColor": "#000000"
+            }
+          },
+          "1-6": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0.0,
+              "borderLeftStyle": "none",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0,
+              "borderRightStyle": "none",
+              "borderRightColor": "#00000b"
+            }
+          },
+          "2-6": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 0.0,
+              "borderLeftStyle": "none",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 0.0,
+              "borderRightStyle": "none",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "4-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderLeftWidth": 0
+            },
+            "value": "担 当 者"
+          },
+          "4-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000"
+            },
+            "value": "担当携帯"
+          },
+          "5-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#ffe5ff",
+              "kerning": false,
+              "borderLeftWidth": 0
+            },
+            "value": "荷降業者"
+          },
+          "5-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false
+            },
+            "value": "荷降現場"
+          },
+          "6-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            }
+          },
+          "6-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000202",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#230000"
+            }
+          },
+          "6-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000"
+            }
+          },
+          "6-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "7-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#f2ffff",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0,
+              "borderLeftWidth": 0
+            },
+            "value": "コガべナ離"
+          },
+          "7-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "7-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderBottomWidth": 0
+            },
+            "value": "コース名"
+          },
+          "7-5": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0
+            }
+          },
+          "2-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "center",
+              "kerning": false
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 43,
+          "1": 51,
+          "2": 419,
+          "3": 44,
+          "4": 43,
+          "5": 134,
+          "6": 139
+        },
+        "rowHeights": {
+          "0": 20,
+          "1": 14,
+          "2": 20,
+          "3": 19,
+          "4": 32,
+          "5": 18,
+          "6": 13,
+          "7": 20
+        },
+        "mergedCells": {
+          "1-0": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "1-1": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "3-0": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "3-2": {
+            "colspan": 5,
+            "rowspan": 1
+          },
+          "1-3": {
+            "colspan": 3,
+            "rowspan": 2
+          },
+          "1-6": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "4-0": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "4-3": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "4-5": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "5-0": {
+            "colspan": 2,
+            "rowspan": 2
+          },
+          "5-3": {
+            "colspan": 2,
+            "rowspan": 2
+          },
+          "5-5": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "6-5": {
+            "colspan": 2,
+            "rowspan": 1
+          },
+          "4-2": {
+            "rowspan": 4,
+            "colspan": 1
+          }
+        },
+        "hiddenCells": {
+          "0-1": true,
+          "2-0": true,
+          "2-1": true,
+          "0-4": true,
+          "3-1": true,
+          "3-3": true,
+          "3-4": true,
+          "3-5": true,
+          "3-6": true,
+          "1-4": true,
+          "1-5": true,
+          "2-3": true,
+          "2-4": true,
+          "2-5": true,
+          "2-6": true,
+          "4-1": true,
+          "4-4": true,
+          "4-6": true,
+          "5-1": true,
+          "5-4": true,
+          "5-6": true,
+          "6-0": true,
+          "6-1": true,
+          "6-3": true,
+          "6-4": true,
+          "6-6": true,
+          "7-1": true,
+          "7-4": true,
+          "7-6": true,
+          "5-2": true,
+          "6-2": true,
+          "7-2": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000100",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "7f9be3f8-beff-42ba-a3fe-bddc0803a1b0",
+      "type": "table",
+      "x": 149.89233234162987,
+      "y": 589.8816632634062,
+      "width": 343.0,
+      "height": 70.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 343,
+        "height": 70,
+        "type": "table",
+        "rows": 2,
+        "columns": 4,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "運転ゆゾィ",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "color": "#030a28",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "backgroundColor": "#fffbf5",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "斉檑様に作業伝票を黇渡し",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#00000d",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#150016"
+            },
+            "value": "受付備考",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#FFFFFF",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "入金額",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#1d0004",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#1e0004",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000500",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 50,
+          "1": 39,
+          "2": 48,
+          "3": 206
+        },
+        "rowHeights": {
+          "0": 35,
+          "1": 35
+        },
+        "mergedCells": {},
+        "hiddenCells": {
+          "0-1": true,
+          "1-0": true,
+          "1-1": true,
+          "1-2": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "ac9e9d54-81f9-452c-a5fb-c24fe1a47982",
+      "type": "table",
+      "x": 53.17847175948992,
+      "y": 716.8014839247912,
+      "width": 807.0,
+      "height": 152.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 807,
+        "height": 152,
+        "type": "table",
+        "rows": 4,
+        "columns": 5,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#00130d",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 0,
+              "borderLeftWidth": 0
+            },
+            "value": "No",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderTopWidth": 0
+            },
+            "value": "コンテナ種類",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderTopWidth": 0
+            },
+            "value": "コンテナ名",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderTopWidth": 0
+            },
+            "value": "2sと"
+          },
+          "0-4": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderTopWidth": 0,
+              "borderRightWidth": 0
+            },
+            "value": "台数"
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderLeftWidth": 0
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            },
+            "value": ""
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "1-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderRightWidth": 0
+            }
+          },
+          "2-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderLeftWidth": 0
+            },
+            "value": ""
+          },
+          "2-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "2-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            },
+            "value": ""
+          },
+          "2-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderBottomWidth": 0,
+              "borderLeftWidth": 0
+            }
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderBottomWidth": 0
+            },
+            "value": ""
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "3-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          },
+          "3-4": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 33.2365448496812,
+          "1": 200.5271539264099,
+          "2": 200.5271539264099,
+          "3": 183.9088815015693,
+          "4": 188.34042081486015
+        },
+        "rowHeights": {
+          "0": 18.834042081486015,
+          "1": 44.31539313290827,
+          "2": 44.31539313290827,
+          "3": 44.31539313290827
+        },
+        "mergedCells": {
+          "2-2": {
+            "rowspan": 2,
+            "colspan": 3
+          }
+        },
+        "hiddenCells": {
+          "2-3": true,
+          "2-4": true,
+          "3-2": true,
+          "3-3": true,
+          "3-4": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "89964375-4c52-4611-bed7-199aa4c3d6a8",
+      "type": "rule",
+      "x": 11.00287821673848,
+      "y": 294.400764396324,
+      "width": 806.5401550189305,
+      "height": 4.431539313290827,
+      "properties": {
+        "color": "#ABABAB",
+        "fontSize": 13.0,
+        "fontFamily": "MS Gothic",
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 200,
+        "height": 15,
+        "type": "rule",
+        "lineWidth": 1.0,
+        "rotation": 0
+      }
+    },
+    {
+      "id": "e318c57d-521c-487c-ab13-97ca5b8e8295",
+      "type": "table",
+      "x": 35.17220433824539,
+      "y": 1003.3416736894064,
+      "width": 485.0,
+      "height": 215.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 485,
+        "height": 215,
+        "type": "table",
+        "rows": 6,
+        "columns": 4,
+        "headerBackgroundColor": "#006932",
+        "headerColor": "#ffffff",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingRight": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "right",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "3.0"
+          },
+          "2-3": {
+            "type": "text",
+            "cellStyle": {
+              "paddingRight": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "right",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "24,000"
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none"
+            },
+            "value": "200126"
+          },
+          "2-1": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "眀邰8趆"
+          },
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false
+            },
+            "value": "No",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "value": "品名",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "value": "予定数量",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "center",
+              "kerning": false
+            },
+            "value": "1"
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none"
+            },
+            "value": ""
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#1c0009",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "4-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#051e00",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "4-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "4-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000619",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "color": "#000000",
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false
+            },
+            "value": "金額"
+          },
+          "3-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#001f17"
+            }
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none"
+            },
+            "value": ""
+          },
+          "5-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#00280d",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#200d26",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "5-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": ""
+          },
+          "5-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "5-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#0c0001",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "4-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          },
+          "2-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Gothic",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 32,
+          "1": 210,
+          "2": 100,
+          "3": 143
+        },
+        "rowHeights": {
+          "0": 23,
+          "1": 25,
+          "2": 23,
+          "3": 57,
+          "4": 33,
+          "5": 54
+        },
+        "mergedCells": {
+          "1-0": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "5-0": {
+            "colspan": 1,
+            "rowspan": 2
+          },
+          "0-2": {
+            "rowspan": 4,
+            "colspan": 2
+          }
+        },
+        "hiddenCells": {
+          "2-0": true,
+          "0-3": true,
+          "1-2": true,
+          "1-3": true,
+          "2-2": true,
+          "2-3": true,
+          "3-2": true,
+          "3-3": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 1,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "a89ca3c0-839d-452b-81b1-7ad4e9aa97d7",
+      "type": "label",
+      "x": 881.6011490843906,
+      "y": 1180.5050910397738,
+      "width": 41.431072286757775,
+      "height": 16.6182724248406,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 13.0,
+        "fontFamily": "MS Gothic",
+        "textAlign": "center",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "1/1頁"
+      }
+    },
+    {
+      "id": "4d51d008-6fb6-4dc9-bc13-ce78ce778e30",
+      "type": "shape",
+      "x": 660.5151273369786,
+      "y": 45.42327796123098,
+      "width": 66.4730896993624,
+      "height": 54.286356587812634,
+      "properties": {
+        "fontSize": 11.0,
+        "fontFamily": "MS Gothic",
+        "backgroundColor": "#ffffff",
+        "borderWidth": 1.0,
+        "borderColor": "#c0c0c0",
+        "borderStyle": "solid",
+        "kerning": false,
+        "width": 60,
+        "height": 40,
+        "type": "shape",
+        "shapeType": "rectangle"
+      }
+    },
+    {
+      "id": "5373e9cb-7eae-4db3-a1ab-73a3769a1d61",
+      "type": "shape",
+      "x": 729.8803322080183,
+      "y": 45.42327796123098,
+      "width": 66.4730896993624,
+      "height": 54.286356587812634,
+      "properties": {
+        "fontSize": 11.0,
+        "fontFamily": "MS Gothic",
+        "backgroundColor": "#ffffff",
+        "borderWidth": 1.0,
+        "borderColor": "#c0c0c0",
+        "borderStyle": "solid",
+        "kerning": false,
+        "width": 60,
+        "height": 40,
+        "type": "shape",
+        "shapeType": "rectangle"
+      }
+    },
+    {
+      "id": "85da3472-1681-4b54-b1ef-630eed1191e5",
+      "type": "shape",
+      "x": 775.93167082575,
+      "y": 100.8126137687712,
+      "width": 66.4730896993624,
+      "height": 54.286356587812634,
+      "properties": {
+        "fontSize": 11.0,
+        "fontFamily": "MS Gothic",
+        "backgroundColor": "#ffffff",
+        "borderWidth": 1.0,
+        "borderColor": "#c0c0c0",
+        "borderStyle": "solid",
+        "kerning": false,
+        "width": 60,
+        "height": 40,
+        "type": "shape",
+        "shapeType": "rectangle"
+      }
+    },
+    {
+      "id": "337e8bf9-dafb-4f09-a95c-8f6b3d895905",
+      "type": "rule",
+      "x": 108.28260979222131,
+      "y": 691.721019569663,
+      "width": 806.5401550189305,
+      "height": 4.431539313290827,
+      "properties": {
+        "color": "#ABABAB",
+        "fontSize": 13.0,
+        "fontFamily": "MS Gothic",
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 200,
+        "height": 15,
+        "type": "rule",
+        "lineWidth": 1.0,
+        "rotation": 0
+      }
+    },
+    {
+      "id": "54edd300-a568-4476-b261-0e0198ed292a",
+      "type": "label",
+      "x": 709.5647050697473,
+      "y": 1157.0749478675505,
+      "width": 89.73867109413925,
+      "height": 17.726157253163308,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Gothic",
+        "textAlign": "center",
+        "fontWeight": "normal",
+        "backgroundColor": "#E8F7F0",
+        "borderWidth": 1.0,
+        "borderColor": "#646464",
+        "borderStyle": "solid",
+        "borderRadius": 0.0,
+        "padding": 4.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 110,
+        "height": 20,
+        "type": "label",
+        "text": "合計金額"
+      }
+    },
+    {
+      "id": "edb819b1-d36e-408a-a796-e8702998fb31",
+      "type": "label",
+      "x": 747.3826804290608,
+      "y": 1230.6129355871428,
+      "width": 99.70963454904361,
+      "height": 17.726157253163308,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Gothic",
+        "textAlign": "center",
+        "fontWeight": "normal",
+        "backgroundColor": "#FFFFFF",
+        "borderWidth": 1.0,
+        "borderColor": "#646464",
+        "borderStyle": "solid",
+        "borderRadius": 0.0,
+        "padding": 4.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 110,
+        "height": 20,
+        "type": "label",
+        "text": "       24,000"
+      }
+    },
+    {
+      "id": "d6c7050e-a0d6-4eb1-ab4a-dfd0e400692b",
+      "type": "label",
+      "x": 308.3091188223075,
+      "y": 890.8014839247912,
+      "width": 91.0,
+      "height": 19.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "推移",
+        "textDecoration": "underline"
+      }
+    },
+    {
+      "id": "9869a9b7-624c-4968-a39f-790cb9c681e7",
+      "type": "label",
+      "x": 218.3824526827692,
+      "y": 957.3416736894064,
+      "width": 97.0,
+      "height": 22.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 15,
+        "fontFamily": "MS Mincho",
+        "textAlign": "center",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "Table 2"
+      }
+    }
+  ],
+  "canvasBackground": "#FFFFFF"
+}

@@ -1,0 +1,849 @@
+{
+  "id": "3870",
+  "name": "page_100_ano",
+  "canvasWidth": 1146,
+  "canvasHeight": 807,
+  "createdAt": "2025-10-09T16:50:27",
+  "updatedAt": "2026-01-13T18:34:04",
+  "image_path": "pages/sR5Jlw3PRWeIcPJVs9OZawGdQMhLYvX0dEBzUpW5.png",
+  "items": [
+    {
+      "id": "8a8ee33e-45bf-43b9-b719-f524919a887b",
+      "type": "table",
+      "x": 34.976485303594494,
+      "y": 120.91870633528383,
+      "width": 1048.0,
+      "height": 190.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "backgroundColor": "#ffffff",
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": 1048,
+        "height": 190,
+        "type": "table",
+        "rows": 9,
+        "columns": 4,
+        "headerBackgroundColor": "#e8f7f0",
+        "headerColor": "#00111d",
+        "headerFontWeight": "normal",
+        "cellData": {
+          "0-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "value": "ェパ列ぉ8Rハ",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "value": "廃棄物名(報告書分類名)",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "value": "廃棄物区分",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false
+            },
+            "value": "2018/06/01",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "2018/06/04",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false
+            },
+            "value": "産廃(直行)",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "8-0": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderBottomWidth": 3.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderLeftWidth": 3.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            },
+            "value": ""
+          },
+          "8-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderBottomWidth": 3.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000",
+              "borderRightWidth": 3.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "9.000 t",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "8-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "fontWeight": "bold",
+              "backgroundColor": "#E8F7F0",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 3.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#001711"
+            },
+            "value": "処分量総合計",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "5-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingBottom": 20,
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#ffe4f3",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "value": "岐神開発株式会社",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "6-2": {
+            "type": "text",
+            "cellStyle": {
+              "paddingLeft": 3,
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "left",
+              "kerning": false
+            },
+            "value": "埋立処分",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "6-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false
+            },
+            "value": "9.000 t",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "5-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000"
+            },
+            "value": "9.000 t",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false
+            },
+            "value": "9.000 t",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false
+            },
+            "value": "7.000 t",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "value": "処分量",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000900"
+            },
+            "value": "処分方法",
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "3-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 1.0,
+              "borderTopStyle": "solid",
+              "borderTopColor": "#000000",
+              "borderBottomWidth": 0.0,
+              "borderBottomStyle": "none",
+              "borderBottomColor": "#ffffff",
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000",
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#ffffff"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderTopWidth": 0.0,
+              "borderTopStyle": "none",
+              "borderTopColor": "#ffffff"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "5-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderRightWidth": 1.0,
+              "borderRightStyle": "solid",
+              "borderRightColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "2-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "4-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderBottomWidth": 1.0,
+              "borderBottomStyle": "solid",
+              "borderBottomColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            },
+            "value": ""
+          },
+          "3-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "borderLeftWidth": 1.0,
+              "borderLeftStyle": "solid",
+              "borderLeftColor": "#000000"
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-2": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "0-3": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          },
+          "1-1": {
+            "type": "text",
+            "cellStyle": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "textAlign": "center",
+              "fontWeight": "bold",
+              "kerning": false
+            },
+            "properties": {
+              "fontSize": 11.0,
+              "fontFamily": "MS Mincho",
+              "kerning": false,
+              "type": "label"
+            }
+          }
+        },
+        "columnWidths": {
+          "0": 133,
+          "1": 309,
+          "2": 435,
+          "3": 171
+        },
+        "rowHeights": {
+          "0": 26,
+          "1": 23,
+          "2": 22,
+          "3": 16,
+          "4": 27,
+          "5": 16,
+          "6": 18,
+          "7": 16,
+          "8": 26
+        },
+        "mergedCells": {
+          "1-3": {
+            "rowspan": 3,
+            "colspan": 1
+          }
+        },
+        "hiddenCells": {
+          "1-1": true,
+          "2-1": true,
+          "5-1": true,
+          "7-0": true,
+          "7-1": true,
+          "7-2": true,
+          "7-3": true,
+          "6-1": true,
+          "8-1": true,
+          "2-2": true,
+          "3-1": true,
+          "4-1": true,
+          "2-3": true,
+          "3-3": true
+        },
+        "cellBorders": {
+          "all": true,
+          "color": "#000000",
+          "width": 1
+        },
+        "headerRows": 4,
+        "tableUpdateVersion": 1
+      }
+    },
+    {
+      "id": "8bef1666-2df4-4d23-b078-23810a8899c8",
+      "type": "label",
+      "x": 531.8163769760675,
+      "y": 38.234587066764206,
+      "width": 161.89116054806595,
+      "height": 28.98051639440687,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 27.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "textDecoration": "underline",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "最終処分帳簿"
+      }
+    },
+    {
+      "id": "68f736f7-a648-43f0-b56e-bd75e2811591",
+      "type": "label",
+      "x": 84.06354836715775,
+      "y": 62.16796216000543,
+      "width": 75.94893951637661,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "【抽出条件】"
+      }
+    },
+    {
+      "id": "908c8ebd-d46d-4503-b42a-c9283d2cb0ee",
+      "type": "label",
+      "x": 107.4102079133816,
+      "y": 85.4854632462715,
+      "width": 41.9717823643134,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "[期間]"
+      }
+    },
+    {
+      "id": "5d9e979e-c9ee-4bd8-a52e-0cd53c8429d6",
+      "type": "label",
+      "x": 294.6558049159755,
+      "y": 96.84576167181568,
+      "width": 65.95565800106391,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "2018/06/01"
+      }
+    },
+    {
+      "id": "1a545f3c-fb2f-43c5-8da6-141d0bb615d1",
+      "type": "label",
+      "x": 365.25443938467964,
+      "y": 101.93147145618967,
+      "width": 22.984547485219238,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "center",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "～"
+      }
+    },
+    {
+      "id": "25f6d67a-4291-4c7d-a14e-42d4cd37a30b",
+      "type": "label",
+      "x": 431.92683605251375,
+      "y": 82.6921340059603,
+      "width": 66.95498615259518,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "2018/06/01"
+      }
+    },
+    {
+      "id": "aa502738-2b4d-42f5-9654-24818b7d381d",
+      "type": "label",
+      "x": 1093.2649977752108,
+      "y": 781.4746144974541,
+      "width": 41.9717823643134,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 11.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "1 / 1頁"
+      }
+    },
+    {
+      "id": "084e4c86-7ab0-4f1e-b902-6c2c909b9030",
+      "type": "label",
+      "x": 26.169119575734236,
+      "y": 28.788064236304955,
+      "width": 180.87839542716011,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "能瀬サービス株式会社"
+      }
+    },
+    {
+      "id": "f9a95a2e-e06a-425a-9968-3a6b3b30e089",
+      "type": "label",
+      "x": 992.3328544705524,
+      "y": 20.9858911821567,
+      "width": 113.92340927456493,
+      "height": 14.98992227296907,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12.0,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "2018/06/26 17:53:13"
+      }
+    },
+    {
+      "id": "82edcdbb-948b-4574-9fac-55a6687a04e8",
+      "type": "label",
+      "x": 814.4090075612756,
+      "y": 84.91870633528383,
+      "width": 97.0,
+      "height": 20.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "集計結果"
+      }
+    },
+    {
+      "id": "6eaeafa0-4557-4c22-a4aa-897f099f4823",
+      "type": "label",
+      "x": 859.4043286211155,
+      "y": 326.91870633528384,
+      "width": 97.0,
+      "height": 20.0,
+      "properties": {
+        "color": "#000000",
+        "fontSize": 12,
+        "fontFamily": "MS Mincho",
+        "textAlign": "left",
+        "fontWeight": "normal",
+        "backgroundColor": "transparent",
+        "borderRadius": 0.0,
+        "padding": 0.0,
+        "letterSpacing": 0.0,
+        "kerning": false,
+        "boxSizing": "border-box",
+        "width": "auto",
+        "height": "auto",
+        "type": "label",
+        "text": "一覧",
+        "textDecoration": "underline"
+      }
+    }
+  ],
+  "canvasBackground": "#FFFFFF"
+}
