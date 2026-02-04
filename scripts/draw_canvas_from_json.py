@@ -61,8 +61,13 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, os.pardir))
+LOCAL_FONT_DIR = os.path.join(REPO_DIR, "fonts")
+
 # Japanese font paths to try (in order of preference)
 JAPANESE_FONT_PATHS = [
+    os.path.join(LOCAL_FONT_DIR, "NotoSansCJK-Regular.ttc"),
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
@@ -76,6 +81,7 @@ JAPANESE_FONT_PATHS = [
 ]
 
 JAPANESE_BOLD_FONT_PATHS = [
+    os.path.join(LOCAL_FONT_DIR, "NotoSansCJK-Bold.ttc"),
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttc",
     "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
