@@ -2276,6 +2276,15 @@ def main():
         base = safe_basename(path, args.input_dir)
         for i in range(args.num_aug):
             aug_rng = random.Random(rng.randint(0, 2**31 - 1))
+            items = data.get('items', [])
+            valid_items = []
+            for item in items:
+                try:
+                    get_item_bbox(item)
+                    valid_items.append(item)
+                except Exception:
+                    pass
+            data['items'] = valid_items
             augmented = augment_canvas(data, aug_rng, args)
             out_name = f"{args.prefix}{base}_aug{i + 1}.json"
             out_path = os.path.join(args.output_dir, out_name)

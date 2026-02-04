@@ -31,8 +31,8 @@ OUTPUT_BASE="data/line_seg_pipeline"
 NUM_AUG=3
 SEED=42
 SPLIT="0.8 0.1 0.1"
-TILE_SIZE=1280
-TILE_STRIDE=1024
+TILE_SIZE=512
+TILE_STRIDE=256
 MAX_ASPECT_RATIO=1.2
 
 # Augmentation probabilities
@@ -48,12 +48,13 @@ SKIP_SYNTHETIC=false
 SKIP_PREPARE=false
 SKIP_TILE=false
 FILL_EMPTY_TEXT=true
-RECURSIVE=false
+RECURSIVE=true
 
 # Smart tiling options
 MIN_LINE_PIXELS=100
 CONTENT_BBOX=true
 BBOX_PADDING=50
+SCALES="0.5,1.0,2.0,3.0,5.0,8.0"
 
 # =============================================================================
 # Parse Arguments
@@ -140,6 +141,10 @@ while [[ $# -gt 0 ]]; do
             BBOX_PADDING="$2"
             shift 2
             ;;
+        --scales)
+            SCALES="$2"
+            shift 2
+            ;;
         --recursive)
             RECURSIVE=true
             shift
@@ -177,6 +182,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --min_line_pixels <n>     Skip tiles with fewer line pixels (default: 100)"
             echo "  --no_content_bbox         Don't restrict tiling to content bounding box"
             echo "  --bbox_padding <n>        Padding around content bbox (default: 50)"
+            echo "  --scales <s1,s2,...>      Comma-separated scale factors (default: 1.0)"
+            echo "                            Example: 0.5,0.75,1.0,1.25,1.5 for multi-scale"
             exit 0
             ;;
         *)
@@ -265,7 +272,7 @@ if [[ "$SKIP_SYNTHETIC" == "false" ]]; then
 
     # Note: Always use --recursive for synthetic since augmented output is flat
     # but may contain files from nested input dirs
-    uv run python -m scripts.draw_table_from_json \
+    uv run python -m scripts.draw_canvas_from_json \
         --input_dir "$AUGMENTED_DIR" \
         --output_dir "$SYNTHETIC_DIR" \
         --recursive \
@@ -330,6 +337,11 @@ if [[ "$SKIP_TILE" == "false" ]]; then
             CONTENT_BBOX_FLAG="--content_bbox"
         fi
 
+        TILE_RECURSIVE_FLAG=""
+        if [[ "$RECURSIVE" == "true" ]]; then
+            TILE_RECURSIVE_FLAG="--recursive"
+        fi
+
         uv run python -m scripts.tile_line_mask_dataset \
             --input_dir "$TILE_INPUT" \
             --output_dir "$TILE_OUTPUT" \
@@ -338,8 +350,9 @@ if [[ "$SKIP_TILE" == "false" ]]; then
             --max_aspect_ratio "$MAX_ASPECT_RATIO" \
             --min_line_pixels "$MIN_LINE_PIXELS" \
             --bbox_padding "$BBOX_PADDING" \
-            --content_bbox \
-            $CONTENT_BBOX_FLAG
+            --scales "$SCALES" \
+            $CONTENT_BBOX_FLAG \
+            $TILE_RECURSIVE_FLAG
 
         echo "  Done!"
         echo ""
