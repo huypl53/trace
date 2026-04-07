@@ -500,6 +500,177 @@ Notes:
 - Predictions are saved as `results/predictions/<image_basename>.json`.
 - Add `--save_heatmap` to dump debug heatmaps next to predictions (`*_heatmap_h.png`, `*_heatmap_v.png`, and `*_heatmap_combined.png`).
 
+## 5b) Run Inference (Save Predicted Masks)
+
+Run inference on a folder of images and save predicted binary masks (instead of JSON lines):
+
+```bash
+uv run python infer_masks.py \
+    --input data/line_mask_dataset/test/images \
+    --trained_model eval/model.pth \
+    --output_dir results/pred_masks \
+    --input_size 1280 \
+    --threshold_h 0.3 \
+    --threshold_v 0.2
+```
+
+Add `--save_raw` to also save raw heatmap images (grayscale 0-255) alongside binary masks.
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--input` | (required) | Directory of input images |
+| `--trained_model` | (required) | Path to model weights |
+| `--output_dir` | `results/pred_masks` | Output directory |
+| `--input_size` | 1280 | Inference input size (should match `train_size`) |
+| `--output_ch` | 2 | Number of output channels |
+| `--threshold_h` | 0.3 | Binarization threshold for horizontal mask |
+| `--threshold_v` | 0.2 | Binarization threshold for vertical mask |
+| `--save_raw` | False | Also save raw heatmaps as grayscale images |
+| `--num_samples` | 0 | Randomly sample N images (0 = all) |
+| `--seed` | 42 | Random seed for sampling |
+| `--device` | `cuda` | Device (`cuda`/`cpu`) |
+
+### Output Structure
+
+```
+results/pred_masks/
+├── sample_001_mask_h.png     # Binary horizontal mask
+├── sample_001_mask_v.png     # Binary vertical mask
+├── sample_001_pred_h.png     # Raw heatmap (only with --save_raw)
+├── sample_001_pred_v.png     # Raw heatmap (only with --save_raw)
+└── ...
+```
+
+## 5c) Evaluate Predictions & Identify Weak Images
+
+Compute per-image metrics, identify weak predictions, and generate a statistical report.
+
+### Mode A: With pre-computed predictions (from `infer_masks.py`)
+
+```bash
+uv run python evaluate_masks.py \
+    --pred_dir results/pred_masks \
+    --gt_dir data/line_mask_dataset/test/masks \
+    --output_dir results/analysis \
+    --save_vis
+```
+
+### Mode B: On-the-fly inference (all-in-one)
+
+```bash
+uv run python evaluate_masks.py \
+    --images_dir data/line_mask_dataset/test/images \
+    --gt_dir data/line_mask_dataset/test/masks \
+    --trained_model eval/model.pth \
+    --output_dir results/analysis \
+    --threshold_h 0.3 --threshold_v 0.2 \
+    --save_vis
+```
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--pred_dir` | None | Directory with pre-computed predicted masks |
+| `--images_dir` | None | Directory with original images (on-the-fly inference) |
+| `--trained_model` | None | Model weights (required with `--images_dir`) |
+| `--gt_dir` | (required) | Directory with ground truth masks |
+| `--output_dir` | `results/analysis` | Output directory for reports |
+| `--input_size` | 1280 | Inference input size |
+| `--output_ch` | 2 | Number of output channels |
+| `--threshold_h` | 0.3 | Threshold for horizontal mask |
+| `--threshold_v` | 0.2 | Threshold for vertical mask |
+| `--device` | `cuda` | Device (`cuda`/`cpu`) |
+| `--num_samples` | 0 | Randomly sample N images to evaluate (0 = all) |
+| `--seed` | 42 | Random seed for sampling |
+| `--bottom_pct` | 0.1 | Bottom percentage flagged as weak (0.1 = 10%) |
+| `--save_vis` | False | Save comparison visualizations for weak images |
+| `--max_vis` | 50 | Max weak images to visualize |
+
+### Output Structure
+
+```
+results/analysis/
+├── per_image_metrics.csv         # Per-image Dice, IoU, Precision, Recall (h/v/combined)
+├── evaluation_report.json        # Aggregate metrics, weak image list, failure modes
+├── pred_masks/                   # Saved predictions (only with --images_dir)
+└── weak_visualizations/          # Side-by-side comparisons (only with --save_vis)
+    ├── 0000_dice0.123_sample_001.png
+    ├── 0001_dice0.234_sample_002.png
+    └── ...
+```
+
+### Visualization Legend
+
+Each weak image visualization shows:
+- **Green** = False negative (GT lines missed by the model)
+- **Red** = False positive (model hallucinated lines)
+- **Yellow** = True positive (correct overlap)
+
+If `--images_dir` is provided, the original image is shown side-by-side.
+
+### Failure Mode Categories
+
+Images with dice < 0.7 are categorized into:
+
+| Mode | Description |
+|------|-------------|
+| `high_fp` | Model hallucinating lines where none exist |
+| `high_fn` | Model missing real lines |
+| `balanced_poor` | Both false positives and false negatives are high |
+
+### Example Output
+
+```
+======================================================================
+EVALUATION SUMMARY
+======================================================================
+Total images evaluated: 500
+
+  Combined:
+    Micro Dice:      0.8395
+    Micro IoU:       0.7234
+    Micro Precision: 0.8512
+    Micro Recall:    0.8281
+    Macro Dice:      0.8150 (std: 0.1234)
+    Macro IoU:       0.7023 (std: 0.1456)
+
+  Horizontal:
+    Micro Dice:      0.8543
+    ...
+
+  Vertical:
+    Micro Dice:      0.8229
+    ...
+
+──────────────────────────────────────────────────────────────────────
+WEAK IMAGES (bottom 10%, sorted by dice):
+──────────────────────────────────────────────────────────────────────
+  0.1234  sample_042
+  0.2345  sample_118
+  ...
+
+──────────────────────────────────────────────────────────────────────
+FAILURE MODE BREAKDOWN (images with dice < 0.7):
+──────────────────────────────────────────────────────────────────────
+  High false positives (hallucinated lines): 12
+  High false negatives (missed lines):       8
+  Both FP and FN high:                       5
+
+──────────────────────────────────────────────────────────────────────
+DICE SCORE DISTRIBUTION:
+──────────────────────────────────────────────────────────────────────
+  [0.00-0.30):     3
+  [0.30-0.50):     7 #
+  [0.50-0.70):    15 ###
+  [0.70-0.80):    42 ########
+  [0.80-0.90):   156 ###############################
+  [0.90-0.95):   187 #####################################
+  [0.95-1.00]:    90 ##################
+```
+
 ## 6) Evaluate Line Segmentation
 
 Evaluate predictions against ground truth JSONs:

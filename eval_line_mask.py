@@ -25,6 +25,7 @@ import cv2
 import numpy as np
 import torch
 
+import imgproc
 from model import TraceModel
 
 
@@ -51,21 +52,15 @@ def load_model(model_path, output_ch=2, device="cuda"):
 def preprocess_image(img, input_size):
     """Preprocess image for inference."""
     h, w = img.shape[:2]
-    # Resize maintaining aspect ratio
-    scale = input_size / max(h, w)
-    new_h, new_w = int(h * scale), int(w * scale)
-    img_resized = cv2.resize(img, (new_w, new_h))
+    # Convert BGR to RGB
+    img_rgb = img[:, :, ::-1].copy()
+    # Resize to square input
+    img_resized = cv2.resize(img_rgb, (input_size, input_size), interpolation=cv2.INTER_LINEAR)
+    # Normalize with ImageNet stats (same as training)
+    img_norm = imgproc.normalizeMeanVariance(img_resized)
+    img_tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).unsqueeze(0).float()
 
-    # Pad to square
-    canvas = np.ones((input_size, input_size, 3), dtype=np.uint8) * 255
-    canvas[:new_h, :new_w] = img_resized
-
-    # Normalize
-    img_norm = canvas.astype(np.float32) / 255.0
-    img_norm = (img_norm - 0.5) / 0.5  # Normalize to [-1, 1]
-    img_tensor = torch.from_numpy(img_norm.transpose(2, 0, 1)).unsqueeze(0)
-
-    return img_tensor, (h, w), scale
+    return img_tensor, (h, w)
 
 
 @torch.no_grad()
@@ -161,13 +156,12 @@ def evaluate_dataset(net, data_dir, phase, input_size, device, scale_down=2, thr
             continue
 
         # Run inference
-        img_tensor, orig_size, scale = preprocess_image(img, input_size)
+        img_tensor, orig_size = preprocess_image(img, input_size)
         pred = run_inference(net, img_tensor, device)
 
-        # Get prediction at output resolution
-        out_size = input_size // scale_down
-        pred_h = pred[0, :out_size, :out_size]  # Channel 0 = horizontal
-        pred_v = pred[1, :out_size, :out_size]  # Channel 1 = vertical
+        # Model output is (H, W, C) after permute — index channels on last axis
+        pred_h = pred[:, :, 0]  # Channel 0 = horizontal
+        pred_v = pred[:, :, 1]  # Channel 1 = vertical
 
         # Resize predictions to match GT
         pred_h = cv2.resize(pred_h, (gt_h.shape[1], gt_h.shape[0]))
